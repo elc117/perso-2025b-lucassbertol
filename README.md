@@ -1,18 +1,25 @@
-# Estrutura e conteúdo do README:
 
-    Identificação: nome e curso
+# Identificação
 
-    Tema/objetivo: descrição do tema/objetivo do trabalho, conforme a proposta validada
+Autor: Lucas Salvini Bertol
 
-    Processo de desenvolvimento: comentários pessoais sobre o desenvolvimento, com evidências de compreensão, incluindo versões com erros e tentativas de solução
+Curso: Sistemas de informação UFSM
 
-    Orientações para execução: 
+Disciplina: Paradigmas de programação
+
+# Tema/objetivo: descrição do tema/objetivo do trabalho, conforme a proposta validada
+
+# Processo de desenvolvimento: comentários pessoais sobre o desenvolvimento, com evidências de compreensão, incluindo versões com erros e tentativas de solução
+
+# Orientações para execução: 
     
-    1. > cabal install scotty aeson http-conduit text wai-middleware-static
+1. > cabal install scotty aeson http-conduit text wai-middleware-static
 
-    2. > runhaskell main.hs
+2. > runhaskell main.hs
 
+# Resultado final: demonstrar execução em GIF animado ou vídeo curto (máximo 60s)
 
-    Resultado final: demonstrar execução em GIF animado ou vídeo curto (máximo 60s)
+# Referências e créditos (incluindo alguns prompts, se aplicável): 
+    
+API Utilizada: https://www.football-data.org/documentation/quickstart
 
-    Referências e créditos (incluindo alguns prompts, se aplicável)
