@@ -10,7 +10,7 @@
     
     1. > cabal install scotty aeson http-conduit text wai-middleware-static
 
-    2. > runhaskell -package scotty -package aeson -package text -package http-conduit -package wai-extra -package wai-middleware-static main.hs
+    2. > runhaskell main.hs
 
 
     Resultado final: demonstrar execução em GIF animado ou vídeo curto (máximo 60s)
