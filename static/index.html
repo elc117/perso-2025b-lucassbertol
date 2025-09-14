@@ -21,7 +21,9 @@
     <button id="buscar">Buscar</button>
     <pre id="saida"></pre>
   </div>
+
   <script>
+
     document.getElementById("buscar").addEventListener("click", async () => {
       const time = document.getElementById("time").value.toLowerCase();
       const campeonato = document.getElementById("campeonato").value;
@@ -29,18 +31,22 @@
       const data = await resp.json();
       console.log("Dados recebidos:", data);
       console.log("Status da resposta:", resp.status);
+
       const dadosRelevantes = {
         Competicao: data.matches[0]?.competition?.name || "N/A",
-        Jogos: data.matches.slice(1).map(jogo => ({
-          Rodada: jogo.matchday,
-          Data: jogo.utcDate,
-          Casa: jogo.homeTeam.shortName,
-          Visitante: jogo.awayTeam.shortName,
-          Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
-            ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
-            : "Jogo ainda não realizado"
-        })) || [],
+        Jogos: data.matches
+          .sort((a, b) => a.matchday - b.matchday) 
+          .map(jogo => ({
+            Rodada: jogo.matchday,
+            Data: jogo.utcDate,
+            Casa: jogo.homeTeam.shortName,
+            Visitante: jogo.awayTeam.shortName,
+            Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
+              ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
+              : "Jogo ainda não realizado"
+          })) || [],
       };
+
       document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
     });
   </script>
