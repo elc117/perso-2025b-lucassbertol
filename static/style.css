@@ -1,1 +1,57 @@
+/*  Estilo geral da página */
+body {
+  font-family: Arial, sans-serif;
+  background: #ff7878; /* cor de fundo cinza claro */
+  margin: 0;
+  padding: 0;
+}
+
+/*  Caixa central que envolve todo o conteúdo */
+.container {
+  max-width: 600px;        /* largura máxima */
+  margin: 50px auto;       /* centraliza na tela */
+  background: #ff9b9b;        /* fundo branco */
+  padding: 20px;           /* espaçamento interno */
+  border-radius: 8px;      /* bordas arredondadas */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* sombra suave */
+}
+
+/*  Título */
+h1 {
+  text-align: center;
+  color: #333; /* cinza escuro */
+}
+
+/* 🔍 Campo de texto */
+input {
+  width: 70%;              /* ocupa 70% da largura */
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;  /* borda cinza */
+  border-radius: 4px;
+}
+
+/*  Botão */
+button {
+  padding: 10px 15px;
+  background: #007BFF;  /* azul padrão */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/*  Botão quando o mouse passa em cima */
+button:hover {
+  background: #ff0000; /* azul mais escuro */
+}
+
+/*  Caixa onde o JSON aparece */
+pre {
+  margin-top: 20px;
+  background: #ffb2b2;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto; /* scroll horizontal se for muito grande */
+}
 
