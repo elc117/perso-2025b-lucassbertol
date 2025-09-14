@@ -23,5 +23,7 @@
     
 Football-Data. (n.d.). Quickstart – Football Data API Documentation. Retrieved September 14, 2025, from https://www.football-data.org/documentation/quickstart
 
-Stack Overflow. (2016). Scotty + HTML: how to intertwine them. Retrieved September 14, 2025, from https://stackoverflow.com/questions/35592164/scotty-html-how-to-intertwine-them
+HASKELL. Web.Scotty — Module documentation (scotty-0.22). Disponível em: https://hackage.haskell.org/package/scotty-0.22/docs/Web-Scotty.html
+
+HASKELL. Scotty — Hackage. Disponível em: https://hackage.haskell.org/package/scotty
 
