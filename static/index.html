@@ -3,52 +3,138 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Estatísticas do Time</title>
+  <title>interScore</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
   <div class="container">
-    <h1>Buscar Estatísticas</h1>
-    <select id="time">
-      <option value="internacional">Internacional</option>
-    </select>
-    <select id="campeonato">
-      <option value="brasileirao">Brasileirão</option>
-      <option value="libertadores">Libertadores</option>
-      <option value="estatisticas gerais">Estatísticas Gerais</option>
-    </select>
-    <button id="buscar">Buscar</button>
+    <h1>Estatísticas SC Internacional (2025)</h1>
+    
+    <div class="botoes">
+      <button id="brasileirao" data-campeonato="brasileirao">Brasileirão</button>
+      <button id="libertadores" data-campeonato="libertadores">Libertadores</button>
+      <button id="jogadores" data-campeonato="jogadores">Elenco atual</button>
+    </div>
+
+    <div class="filtros" id="filtros" style="display: none;">
+      <label for="ano-select">Selecione o ano:</label>
+      <select id="ano-select">
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+      </select>
+      <button id="aplicar-filtro">Buscar</button>
+    </div>
+    
     <pre id="saida"></pre>
   </div>
 
   <script>
 
-    document.getElementById("buscar").addEventListener("click", async () => {
-      const time = document.getElementById("time").value.toLowerCase();
-      const campeonato = document.getElementById("campeonato").value;
-      const resp = await fetch(`/api/team/${time}/${campeonato}`);
-      const data = await resp.json();
-      console.log("Dados recebidos:", data);
-      console.log("Status da resposta:", resp.status);
+    async function buscarDados(campeonato) {
+      try {
+        const time = "internacional"; 
+        const resp = await fetch(`/api/team/${time}/${campeonato}/`);
+        const data = await resp.json();
 
-      const dadosRelevantes = {
-        Competicao: data.matches[0]?.competition?.name || "N/A",
-        Jogos: data.matches
-          .sort((a, b) => a.matchday - b.matchday) 
-          .map(jogo => ({
-            Rodada: jogo.matchday,
-            Data: jogo.utcDate,
-            Casa: jogo.homeTeam.shortName,
-            Visitante: jogo.awayTeam.shortName,
-            Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
-              ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
-              : "Jogo ainda não realizado"
-          })) || [],
-      };
+        console.log("Dados recebidos:", data);
+        console.log("Status da resposta:", resp.status);
 
-      document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+        const dadosRelevantes = {
+          Competicao: data.matches[0]?.competition?.name || "N/A",
+          Jogos: data.matches
+            .sort((a, b) => a.matchday - b.matchday) 
+            .map(jogo => ({
+              Rodada: jogo.matchday,
+              Data: jogo.utcDate,
+              Casa: jogo.homeTeam.shortName,
+              Visitante: jogo.awayTeam.shortName,
+              Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
+                ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
+                : "Á definir",
+            })) || [],
+        };
+
+        document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+      } catch (error) {
+        document.getElementById("saida").textContent = `Erro: ${error.message}`;
+      }
+    }
+
+    async function buscarDadosComAno(campeonato, ano) {
+      try {
+        const time = "internacional";
+        const resp = await fetch(`/api/team/${time}/${campeonato}/${ano}`);
+        const data = await resp.json();
+
+        console.log("Dados recebidos:", data);
+        console.log("Status da resposta:", resp.status);
+
+        const dadosRelevantes = {
+          Competicao: data.matches[0]?.competition?.name || "N/A",
+          Jogos: data.matches
+            .sort((a, b) => a.matchday - b.matchday) 
+            .map(jogo => ({
+              Rodada: jogo.matchday,
+              Data: jogo.utcDate,
+              Casa: jogo.homeTeam.shortName,
+              Visitante: jogo.awayTeam.shortName,
+              Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
+                ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
+                : "Á definir",
+            })) || [],
+        };
+
+        document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+      } catch (error) {
+        document.getElementById("saida").textContent = `Erro: ${error.message}`;
+      }
+    }
+
+    let competicaoAtual = null;
+
+
+    document.getElementById("brasileirao").addEventListener("click", () => {
+      document.getElementById("filtros").style.display = "block";
+      document.getElementById("saida").innerHTML = ""; 
     });
+
+
+    document.getElementById("libertadores").addEventListener("click", () => {
+      document.getElementById("filtros").style.display = "none"; 
+      buscarDados("libertadores");
+    });
+
+    document.getElementById("aplicar-filtro").addEventListener("click", () => {
+      const anoSelecionado = document.getElementById("ano-select").value;
+      buscarDadosComAno("brasileirao", anoSelecionado);
+    });
+
+    document.getElementById("jogadores").addEventListener("click", async () => {
+      document.getElementById("filtros").style.display = "none"; 
+      try {
+        const time = "internacional";
+        const resp = await fetch(`/api/team/${time}/jogadores`);  
+        const data = await resp.json();
+        
+        const dadosRelevantes = {
+          Jogadores: data.squad.map(jogador => ({
+            Nome: jogador.name,
+            Posicao: jogador.position,
+            Nacionalidade: jogador.nationality,
+            Nascimento: jogador.dateOfBirth,
+          })) || [],
+        };
+
+        document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+      } catch (error) {
+        document.getElementById("saida").textContent = `Erro: ${error.message}`;
+      }
+    });
+
+    function esconderFiltros() {
+      document.getElementById("filtros").style.display = "none";
+    }
   </script>
 </body>
 
