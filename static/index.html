@@ -1,1 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
 
+<head>
+  <meta charset="UTF-8">
+  <title>Estatísticas do Time</title>
+  <!--  Link para o CSS que está na pasta static -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Buscar Estatísticas</h1>
+    <!--  Campo de seleção do nome do time -->
+    <select id="time">
+      <option value="internacional">Internacional</option>
+    </select>
+    <!--  Campo de seleção do campeonato/outros -->
+    <select id="campeonato">
+      <option value="brasileirao">Brasileirão</option>
+      <option value="libertadores">Libertadores</option>
+      <option value="estatisticas gerais">Estatísticas Gerais</option>
+    </select>
+    <!--  Botão que dispara a busca -->
+    <button id="buscar">Buscar</button>
+    <pre id="saida"></pre>
+  </div>
+  <script>
+    document.getElementById("buscar").addEventListener("click", async () => {
+      const time = document.getElementById("time").value.toLowerCase();
+      const campeonato = document.getElementById("campeonato").value;
+      const resp = await fetch(`/api/team/${time}/${campeonato}`);
+      const data = await resp.json();
+      console.log("Dados recebidos:", data);
+      console.log("Status da resposta:", resp.status);
+      const dadosRelevantes = {
+        Competicao: data.matches[0]?.competition?.name || "N/A",
+        Jogos: data.matches.slice(1).map(jogo => ({
+          Rodada: jogo.matchday,
+          Data: jogo.utcDate,
+          Casa: jogo.homeTeam.shortName,
+          Visitante: jogo.awayTeam.shortName,
+          Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
+            ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
+            : "Jogo ainda não realizado"
+        })) || [],
+      };
+      document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+    });
+  </script>
+</body>
+
+</html>
