@@ -3,7 +3,7 @@
 
 * Autor: Lucas Salvini Bertol
 
-* Curso: Sistemas de informação UFSM
+* Curso: Sistemas de informação 
 
 * Disciplina: Paradigmas de programação
 
@@ -21,5 +21,7 @@
 
 # Referências e créditos (incluindo alguns prompts, se aplicável): 
     
-API Utilizada: https://www.football-data.org/documentation/quickstart
+Football-Data. (n.d.). Quickstart – Football Data API Documentation. Retrieved September 14, 2025, from https://www.football-data.org/documentation/quickstart
+
+Stack Overflow. (2016). Scotty + HTML: how to intertwine them. Retrieved September 14, 2025, from https://stackoverflow.com/questions/35592164/scotty-html-how-to-intertwine-them
 
