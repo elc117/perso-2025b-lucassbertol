@@ -1,11 +1,11 @@
 
 # Identificação
 
-Autor: Lucas Salvini Bertol
+* Autor: Lucas Salvini Bertol
 
-Curso: Sistemas de informação UFSM
+* Curso: Sistemas de informação UFSM
 
-Disciplina: Paradigmas de programação
+* Disciplina: Paradigmas de programação
 
 # Tema/objetivo: descrição do tema/objetivo do trabalho, conforme a proposta validada
 
@@ -13,9 +13,9 @@ Disciplina: Paradigmas de programação
 
 # Orientações para execução: 
     
-1. > cabal install scotty aeson http-conduit text wai-middleware-static
+1. Instalar dependências
 
-2. > runhaskell main.hs
+2. runhaskell main.hs
 
 # Resultado final: demonstrar execução em GIF animado ou vídeo curto (máximo 60s)
 
