@@ -39,34 +39,34 @@
       <button id="aplicar-filtro-calendario">Buscar</button>
     </div>
     
-    <pre id="saida"></pre>
+    <div id="saida"></div>
   </div>
 
   <script>
 
-      function formatarParaTexto(dados) {
-        let texto = '';
+        function formatarParaTexto(dados) {
+          let texto = '';
 
-        if (dados.Competicao) {
-          texto += `🏆 COMPETIÇÃO: ${dados.Competicao} \n\n\n`;
-        }
+          if (dados.Competicao) {
+            texto += `🏆 COMPETIÇÃO: ${dados.Competicao}<br><br><br>`;
+          }
 
-        if (dados.Jogos && dados.Jogos.length > 0) {
-          dados.Jogos.forEach(jogo => {
-            texto += `\n⚽ Rodada ${jogo.Rodada}\n`;
-            texto += `📅${jogo.Data}\n`;
-            texto += `${jogo.Casa}\nvs\n${jogo.Visitante}\n`;
-            texto += `🥅 ${jogo.Placar}\n\n\n`;
-          });
-        }
+          if (dados.Jogos && dados.Jogos.length > 0) {
+            dados.Jogos.forEach(jogo => {
+              texto += `<br>⚽ Rodada ${jogo.Rodada}<br>`;
+              texto += `📅${jogo.Data}<br><br>`;
+              texto += `<img src="${jogo.EmblemaCasa}" width="20" height="20"> ${jogo.Casa} | ${jogo.PlacarCasa} <br>`;
+              texto += `<img src="${jogo.EmblemaVisitante}" width="20" height="20"> ${jogo.Visitante} | ${jogo.PlacarVisitante} <br><br><br>`;
+            });
+          }
 
         if (dados.Jogadores && dados.Jogadores.length > 0) {
-          texto += `👥 ELENCO:\n\n\n`;
+          texto += `👥 ELENCO:<br><br><br>`;
           dados.Jogadores.forEach(jogador => {
-            texto += `👤 ${jogador.Nome}\n`;
-            texto += `⚽ ${jogador.Posicao}\n`;
-            texto += `🌍 ${jogador.Nacionalidade}\n`;
-            texto += `📅 ${jogador.Nascimento}\n\n\n`;
+            texto += `👤 ${jogador.Nome}<br>`;
+            texto += `⚽ ${jogador.Posicao}<br>`;
+            texto += `🌍 ${jogador.Nacionalidade}<br>`;
+            texto += `📅 ${jogador.Nascimento}<br><br><br>`;
           });
         }
 
@@ -77,19 +77,18 @@
       let texto = '';
       
       if (dados.Competicao) {
-        texto += `📅 ${dados.Competicao}\n\n\n`;
+        texto += `📅 ${dados.Competicao}<br><br><br>`;
       }
       
       if (dados.Jogos && dados.Jogos.length > 0) {
         dados.Jogos.forEach(jogo => {
-          texto += `🏆 ${jogo.Competicao}\n`;
-          texto += `📅 ${jogo.Data}\n`;
-          texto += `${jogo.Casa}\nvs\n${jogo.Visitante}\n\n\n`;
-          
-
+          texto += `🏆 ${jogo.Competicao}<br>`;
+          texto += `📅 ${jogo.Data}<br><br>`;
+          texto += `<img src="${jogo.EmblemaCasa}" width="20" height="20"> ${jogo.Casa} <br>`;
+          texto += `<img src="${jogo.EmblemaVisitante}" width="20" height="20"> ${jogo.Visitante} <br><br><br>`;
         });
       } else {
-        texto += "Nenhuma partida futura encontrada.\n";
+        texto += "Nenhuma partida futura encontrada.<br>";
       }
       
       return texto;
@@ -119,15 +118,16 @@
               }),
               Casa: jogo.homeTeam.shortName,
               Visitante: jogo.awayTeam.shortName,
-              Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
-                ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
-                : "Á definir",
+              EmblemaCasa: jogo.homeTeam.crest || "N/A",
+              EmblemaVisitante: jogo.awayTeam.crest || "N/A",
+              PlacarCasa: jogo.score?.fullTime?.home == "0" ? "0" : jogo.score?.fullTime?.home || "-",
+              PlacarVisitante: jogo.score?.fullTime?.away == "0" ? "0" : jogo.score?.fullTime?.away || "-",
             })) || [],
         };
 
-        document.getElementById("saida").textContent = formatarParaTexto(dadosRelevantes, null, 2);
+        document.getElementById("saida").innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
       } catch (error) {
-        document.getElementById("saida").textContent = `Erro: ${error.message}`;
+        document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
       }
     }
 
@@ -143,6 +143,7 @@
         const dadosRelevantes = {
           Competicao: data.matches[0]?.competition?.name || "N/A",
           Jogos: data.matches
+            .filter(jogo => jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null)
             .sort((a, b) => a.matchday - b.matchday) 
             .map(jogo => ({
               Rodada: jogo.matchday,
@@ -158,12 +159,16 @@
               Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
                 ? `${jogo.score.fullTime.home} x ${jogo.score.fullTime.away}`
                 : "Á definir",
+              EmblemaCasa: jogo.homeTeam.crest || "N/A",
+              EmblemaVisitante: jogo.awayTeam.crest || "N/A",
+              PlacarCasa: jogo.score?.fullTime?.home,
+              PlacarVisitante: jogo.score?.fullTime?.away,
             })) || [],
         };
 
-        document.getElementById("saida").textContent = formatarParaTexto(dadosRelevantes, null, 2);
+        document.getElementById("saida").innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
       } catch (error) {
-        document.getElementById("saida").textContent = `Erro: ${error.message}`;
+        document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
       }
     }
 
@@ -220,14 +225,18 @@
           Visitante: jogo.awayTeam.shortName,
           Placar: "A definir",
           Competicao: jogo.competition.name,
-          Local: isHomeGame ? "🏠 Casa" : "✈️ Fora"
+          Local: isHomeGame ? "🏠 Casa" : "✈️ Fora",
+          EmblemaCasa: jogo.homeTeam.crest || "N/A",
+          EmblemaVisitante: jogo.awayTeam.crest || "N/A",
+          PlacarCasa: jogo.score?.fullTime?.home,
+          PlacarVisitante: jogo.score?.fullTime?.away,
         };
       })
     };
     
-    document.getElementById("saida").textContent = formatarPartidasCalendario(dadosRelevantes);
+    document.getElementById("saida").innerHTML = formatarPartidasCalendario(dadosRelevantes);
   } catch (error) {
-    document.getElementById("saida").textContent = `Erro: ${error.message}`;
+    document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
   }
 }
 
@@ -269,9 +278,9 @@
           })) || [],
         };
 
-        document.getElementById("saida").textContent = formatarParaTexto(dadosRelevantes, null, 2);
+        document.getElementById("saida").innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
       } catch (error) {
-        document.getElementById("saida").textContent = `Erro: ${error.message}`;
+        document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
       }
     });
 
