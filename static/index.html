@@ -9,27 +9,91 @@
 
 <body>
   <div class="container">
-    <h1>Estatísticas SC Internacional (2025)</h1>
+    <h1>Estatísticas SC Internacional</h1>
     
     <div class="botoes">
       <button id="brasileirao" data-campeonato="brasileirao">Brasileirão</button>
       <button id="libertadores" data-campeonato="libertadores">Libertadores</button>
-      <button id="jogadores" data-campeonato="jogadores">Elenco atual</button>
+      <button id="calendario" data-campeonato="calendario">Calendário</button>
+      <button id="jogadores" data-campeonato="jogadores">Jogadores</button>
     </div>
 
     <div class="filtros" id="filtros" style="display: none;">
       <label for="ano-select">Selecione o ano:</label>
       <select id="ano-select">
+        <option value="" disabled selected>Selecione uma opção</option>
         <option value="2024">2024</option>
         <option value="2025">2025</option>
       </select>
       <button id="aplicar-filtro">Buscar</button>
+    </div>
+
+    <div class="filtros-calendario" id="filtros-calendario" style="display: none;">
+      <label for="local-select">Filtrar por:</label>
+      <select id="local-select">
+        <option value="" disabled selected>Selecione uma opção</option>
+        <option value="todos">Todos os jogos</option>
+        <option value="casa">Apenas jogos em casa</option>
+        <option value="fora">Apenas jogos fora de casa</option>
+      </select>
+      <button id="aplicar-filtro-calendario">Buscar</button>
     </div>
     
     <pre id="saida"></pre>
   </div>
 
   <script>
+
+      function formatarParaTexto(dados) {
+        let texto = '';
+
+        if (dados.Competicao) {
+          texto += `🏆 COMPETIÇÃO: ${dados.Competicao} \n\n\n`;
+        }
+
+        if (dados.Jogos && dados.Jogos.length > 0) {
+          dados.Jogos.forEach(jogo => {
+            texto += `\n⚽ Rodada ${jogo.Rodada}\n`;
+            texto += `📅${jogo.Data}\n`;
+            texto += `${jogo.Casa}\nvs\n${jogo.Visitante}\n`;
+            texto += `🥅 ${jogo.Placar}\n\n\n`;
+          });
+        }
+
+        if (dados.Jogadores && dados.Jogadores.length > 0) {
+          texto += `👥 ELENCO:\n\n\n`;
+          dados.Jogadores.forEach(jogador => {
+            texto += `👤 ${jogador.Nome}\n`;
+            texto += `⚽ ${jogador.Posicao}\n`;
+            texto += `🌍 ${jogador.Nacionalidade}\n`;
+            texto += `📅 ${jogador.Nascimento}\n\n\n`;
+          });
+        }
+
+        return texto;
+      }
+    
+    function formatarPartidasCalendario(dados) {
+      let texto = '';
+      
+      if (dados.Competicao) {
+        texto += `📅 ${dados.Competicao}\n\n\n`;
+      }
+      
+      if (dados.Jogos && dados.Jogos.length > 0) {
+        dados.Jogos.forEach(jogo => {
+          texto += `🏆 ${jogo.Competicao}\n`;
+          texto += `📅 ${jogo.Data}\n`;
+          texto += `${jogo.Casa}\nvs\n${jogo.Visitante}\n\n\n`;
+          
+
+        });
+      } else {
+        texto += "Nenhuma partida futura encontrada.\n";
+      }
+      
+      return texto;
+    }
 
     async function buscarDados(campeonato) {
       try {
@@ -46,7 +110,13 @@
             .sort((a, b) => a.matchday - b.matchday) 
             .map(jogo => ({
               Rodada: jogo.matchday,
-              Data: jogo.utcDate,
+              Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }),
               Casa: jogo.homeTeam.shortName,
               Visitante: jogo.awayTeam.shortName,
               Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
@@ -55,7 +125,7 @@
             })) || [],
         };
 
-        document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+        document.getElementById("saida").textContent = formatarParaTexto(dadosRelevantes, null, 2);
       } catch (error) {
         document.getElementById("saida").textContent = `Erro: ${error.message}`;
       }
@@ -76,7 +146,13 @@
             .sort((a, b) => a.matchday - b.matchday) 
             .map(jogo => ({
               Rodada: jogo.matchday,
-              Data: jogo.utcDate,
+              Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }),
               Casa: jogo.homeTeam.shortName,
               Visitante: jogo.awayTeam.shortName,
               Placar: jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null
@@ -85,23 +161,89 @@
             })) || [],
         };
 
-        document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+        document.getElementById("saida").textContent = formatarParaTexto(dadosRelevantes, null, 2);
       } catch (error) {
         document.getElementById("saida").textContent = `Erro: ${error.message}`;
       }
     }
+
+    async function buscarPartidasSemResultado(filtroLocal = "todos") {
+  try {
+    const time = "internacional";
+
+    const respBrasileirao = await fetch(`/api/team/${time}/brasileirao/2025`);
+    const dataBrasileirao = await respBrasileirao.json();
+    
+    const todasPartidas = [
+      ...(dataBrasileirao.matches || []),
+    ];
+    
+    let partidasSemResultado = todasPartidas.filter(jogo => 
+      jogo.score?.fullTime?.home === null || 
+      jogo.score?.fullTime?.away === null
+    );
+    
+    if (filtroLocal === "casa") {
+      partidasSemResultado = partidasSemResultado.filter(jogo => 
+        jogo.homeTeam.shortName === "Internacional" || 
+        jogo.homeTeam.name.includes("Internacional")
+      );
+    } else if (filtroLocal === "fora") {
+      partidasSemResultado = partidasSemResultado.filter(jogo => 
+        jogo.awayTeam.shortName === "Internacional" || 
+        jogo.awayTeam.name.includes("Internacional")
+      );
+    }
+    
+    partidasSemResultado.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+    
+    const dadosRelevantes = {
+      Competicao: `Próximas Partidas - Internacional ${
+        filtroLocal === "casa" ? "(Em Casa)" : 
+        filtroLocal === "fora" ? "(Fora de Casa)" : 
+        ""
+      }`,
+      Jogos: partidasSemResultado.map(jogo => {
+        const isHomeGame = jogo.homeTeam.shortName === "Internacional" || 
+                          jogo.homeTeam.name.includes("Internacional");
+        
+        return {
+          Rodada: jogo.matchday,
+          Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit', 
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          Casa: jogo.homeTeam.shortName,
+          Visitante: jogo.awayTeam.shortName,
+          Placar: "A definir",
+          Competicao: jogo.competition.name,
+          Local: isHomeGame ? "🏠 Casa" : "✈️ Fora"
+        };
+      })
+    };
+    
+    document.getElementById("saida").textContent = formatarPartidasCalendario(dadosRelevantes);
+  } catch (error) {
+    document.getElementById("saida").textContent = `Erro: ${error.message}`;
+  }
+}
 
     let competicaoAtual = null;
 
 
     document.getElementById("brasileirao").addEventListener("click", () => {
       document.getElementById("filtros").style.display = "block";
+      document.getElementById("filtros-calendario").style.display = "none";
       document.getElementById("saida").innerHTML = ""; 
     });
 
 
     document.getElementById("libertadores").addEventListener("click", () => {
-      document.getElementById("filtros").style.display = "none"; 
+      document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-calendario").style.display = "none"; 
       buscarDados("libertadores");
     });
 
@@ -111,7 +253,8 @@
     });
 
     document.getElementById("jogadores").addEventListener("click", async () => {
-      document.getElementById("filtros").style.display = "none"; 
+      document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-calendario").style.display = "none"; 
       try {
         const time = "internacional";
         const resp = await fetch(`/api/team/${time}/jogadores`);  
@@ -126,14 +269,26 @@
           })) || [],
         };
 
-        document.getElementById("saida").textContent = JSON.stringify(dadosRelevantes, null, 2);
+        document.getElementById("saida").textContent = formatarParaTexto(dadosRelevantes, null, 2);
       } catch (error) {
         document.getElementById("saida").textContent = `Erro: ${error.message}`;
       }
     });
 
+      document.getElementById("calendario").addEventListener("click", () => {
+        document.getElementById("filtros").style.display = "none";
+        document.getElementById("filtros-calendario").style.display = "block";
+        document.getElementById("saida").innerHTML = "";
+      });
+
+    document.getElementById("aplicar-filtro-calendario").addEventListener("click", () => {
+  const filtroLocal = document.getElementById("local-select").value;
+  buscarPartidasSemResultado(filtroLocal);
+});
+
     function esconderFiltros() {
       document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-calendario").style.display = "none";
     }
   </script>
 </body>
