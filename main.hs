@@ -18,14 +18,12 @@ main = scotty 3000 $ do
   get "/" $ file "static/index.html"
 
   get "/api/team/:name/:dataType/:year" $ do
-    teamName <- pathParam "name" :: ActionM Text
     dataType <- pathParam "dataType" :: ActionM Text  
     year <- pathParam "year" :: ActionM Text
     
     let requestUrl = case dataType of
           "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=" ++ T.unpack year
           "libertadores" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2152&season=" ++ T.unpack year
-          _ -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=" ++ T.unpack year
 
     request <- parseRequest requestUrl
     let requestAuth = setRequestHeader "X-Auth-Token" [BS.pack apiKey] request
@@ -39,18 +37,14 @@ main = scotty 3000 $ do
 
 
   get "/api/team/:name/:dataType" $ do
-    teamName <- pathParam "name" :: ActionM Text
     dataType <- pathParam "dataType" :: ActionM Text
 
-    let teamId = case teamName of
-          "internacional" -> "6684"
-          _ -> "6684"
 
     let requestUrl = case dataType of
           "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=2025"
           "libertadores" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2152&season=2025"
           "jogadores" -> "http://api.football-data.org/v4/teams/6684"
-
+          
     request <- parseRequest requestUrl
     let requestAuth = setRequestHeader "X-Auth-Token" [BS.pack apiKey] request
 
