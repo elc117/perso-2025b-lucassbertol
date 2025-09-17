@@ -1,23 +1,66 @@
+# Relatório do Trabalho – Paradigmas de Programação
 
-# Identificação
+## Identificação
 
-* Autor: Lucas Salvini Bertol
+- **Autor:** Lucas Salvini Bertol  
+- **Curso:** Sistemas de Informação  
+- **Disciplina:** Paradigmas de Programação  
 
-* Curso: Sistemas de informação 
+---
 
-* Disciplina: Paradigmas de programação
+## Tema / Objetivo
 
-# Tema/objetivo: descrição do tema/objetivo do trabalho, conforme a proposta validada
+O objetivo do trabalho foi **desenvolver um backend em Haskell** utilizando a biblioteca **Scotty** e de minha escolha foi integrar com a API [football-data.org](https://www.football-data.org/).  
 
-# Processo de desenvolvimento: comentários pessoais sobre o desenvolvimento, com evidências de compreensão, incluindo versões com erros e tentativas de solução
+Esse backend foi projetado para consultar informações do **Sport Club Internacional**, como:  
+- Partidas do Brasileirão (com opção de filtro por ano)  
+- Partidas da Libertadores  
+- Próximos jogos (calendário, com filtro por jogos "em casa" ou "fora")  
+- Elenco de jogadores  
 
-# Orientações para execução: 
-    
-1. Instalar dependências
+O frontend foi construído com **HTML, CSS e JavaScript**, consumindo as rotas expostas pelo backend em Haskell, exibindo os dados de forma organizada e acessível ao usuário.  
 
-2. runhaskell main.hs
+---
+
+## Processo de Desenvolvimento
+
+Durante o desenvolvimento, foram explorados conceitos fundamentais de programação funcional aplicados ao **backend em Haskell**, como:  
+- Uso de **monads** para manipulação de efeitos (I/O e HTTP).  
+- Criação de rotas com **Scotty**.  
+- Manipulação de JSON com a biblioteca **Aeson**.  
+
+- **Rotas dinâmicas:**  
+  No começo implementei apenas uma rota fixa (`/api/team/brasileirao`).  
+  - Depois percebi a necessidade de parametrizar ano e tipo de dado (competição/jogadores).  
+  - Resolvi isso adicionando rotas com parâmetros (`/api/team/:name/:dataType/:year`).
+
+- **Tratammento de erros:**
+  - Decode muitas vezes retornava com `nothing`
+  - Com o Scotty, consegui devolver uma resposta JSON de erro no lugar de deixar o servidor não funcionar:
+  - `case (decode body :: Maybe Value) of`\
+    `Just val -> json val`\
+    `Nothing  -> json $ object ["erro" .= ("não consegui ler os dados" :: String)]`
+
+
+---
+
+## Orientações para Execução
+
+### 1. Instalar dependências
+Certifique-se de ter instalado o **GHC** e o **Stack** ou **Cabal**.  
+Além disso, são necessárias as bibliotecas:  
+- `scotty`  
+- `aeson`  
+- `http-conduit` (ou `http-simple`)  
+- `wai-middleware-static`
+
+### 2. runhaskell main.hs
+
+---
 
 # Resultado final: demonstrar execução em GIF animado ou vídeo curto (máximo 60s)
+
+---
 
 # Referências e créditos (incluindo alguns prompts, se aplicável): 
 
