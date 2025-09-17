@@ -29,19 +29,43 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
 - Criação de rotas com **Scotty**.  
 - Manipulação de JSON com a biblioteca **Aeson**.  
 
-- **Rotas dinâmicas:**  
-  No começo implementei apenas uma rota fixa (`/api/team/brasileirao`).  
-  - Depois percebi a necessidade de parametrizar ano e tipo de dado (competição/jogadores).  
-  - Resolvi isso adicionando rotas com parâmetros (`/api/team/:name/:dataType/:year`).
 
-- **Tratammento de erros:**
+- **Rotas dinâmicas:**  
+    - No começo implementei apenas uma rota fixa (`/api/team/brasileirao`).  
+    - Depois percebi a necessidade de parametrizar ano e tipo de dado (competição/jogadores).  
+    - Resolvi isso adicionando rotas com parâmetros (`/api/team/:name/:dataType/:year`).
+
+
+- **Integração `scotty` com a biblioteca `http-conduit`**
+    - O `scotty` cria a rota HTTP e "captura" os parâmetros
+    - Dependendo do parâmetro, determinado endpoint da API é escolhido
+    - `http-conduit` faz a chamada externa:
+
+
+       ~~~haskell
+       request <- parseRequest requestUrl
+       let requestAuth = setRequestHeader "X-Auth-Token" [BS.pack apiKey] request
+       response <- httpLBS requestAuth
+       let body = getResponseBody response
+      ~~~
+       
+   - `parseRequest` → prepara a requisição.
+   - `setRequestHeader` → adiciona o token de autenticação.
+   - `httpLBS` → executa a chamada e pega a resposta.
+   - `getResponseBody` → extrai o corpo em JSON bruto.
+ 
+   - Se tudo ocorrer bem, **scotty** retorna ao navegador em JSON
+
+
+- **Tratamento de erros:**
   - Decode muitas vezes retornava com `nothing`
   - Com o Scotty, consegui devolver uma resposta JSON de erro no lugar de deixar o servidor não funcionar:
-  - `case (decode body :: Maybe Value) of`\
-    `Just val -> json val`\
-    `Nothing  -> json $ object ["erro" .= ("não consegui ler os dados" :: String)]`
-
-
+ 
+    ~~~haskell
+     case (decode body :: Maybe Value) of
+     Just val -> json val
+     Nothing  -> json $ object ["erro" .= ("não consegui ler os dados" :: String)]
+    ~~~ 
 ---
 
 ## Orientações para Execução
@@ -54,7 +78,8 @@ Além disso, são necessárias as bibliotecas:
 - `http-conduit` (ou `http-simple`)  
 - `wai-middleware-static`
 
-### 2. runhaskell main.hs
+### 2. Rodar o código
+- `runhaskell main.hs`
 
 ---
 
