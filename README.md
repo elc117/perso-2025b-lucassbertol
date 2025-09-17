@@ -10,7 +10,7 @@
 
 ## Tema / Objetivo
 
-O objetivo do trabalho foi **desenvolver um backend em Haskell** utilizando a biblioteca **Scotty** e de minha escolha foi integrar com a API [football-data.org](https://www.football-data.org/).  
+O objetivo do trabalho foi **desenvolver um backend em Haskell** utilizando a biblioteca **Scotty**, e de minha escolha, foi integrar com a API [football-data.org](https://www.football-data.org/).  
 
 Esse backend foi projetado para consultar informações do **Sport Club Internacional**, como:  
 - Partidas do Brasileirão (com opção de filtro por ano)  
@@ -62,7 +62,7 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
    - `httpLBS` → executa a chamada e pega a resposta (status, header e body).
    - `getResponseBody` → extrai o corpo em JSON bruto.
  
-   - Se tudo ocorrer bem, **scotty** retorna ao navegador em JSON
+   - Se tudo ocorrer bem, **Scotty** retorna ao navegador em JSON
 
 - ### **Rotas dinâmicas:**  
     - No começo implementei apenas uma rota fixa (`/api/team/brasileirao`).  
@@ -71,7 +71,7 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
 
 - ### **Tratamento de erros:**
   - Decode muitas vezes retornava com `nothing`
-  - Com o Scotty, consegui devolver uma resposta JSON de erro no lugar de deixar o servidor não funcionar:
+  - Com o `Scotty`, consegui devolver uma resposta JSON de erro no lugar de deixar o servidor não funcionar:
  
     ~~~haskell
      case (decode body :: Maybe Value) of
