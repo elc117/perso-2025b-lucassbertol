@@ -99,7 +99,7 @@ Além disso, são necessárias as bibliotecas:
 
 ---
 
-# Referências e créditos (incluindo alguns prompts, se aplicável): 
+# Referências e créditos: 
 
 ELC117 – Paradigmas de Programação. Slides da aula: Backend Web com Scotty (Haskell). Disponível em: https://liascript.github.io/course/?https://raw.githubusercontent.com/elc117/demo-scotty-codespace-2025b/main/README.md#1
 
