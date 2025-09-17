@@ -109,3 +109,7 @@ HASKELL. Web.Scotty — Module documentation (scotty-0.22). Disponível em: http
 
 HASKELL. Scotty — Hackage. Disponível em: https://hackage.haskell.org/package/scotty
 
+Build a Haskell Server with Scotty framework. 2024. Disponível em: https://www.youtube.com/watch?v=psTTKGj9G6Y
+
+
+
