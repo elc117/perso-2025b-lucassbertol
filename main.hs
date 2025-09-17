@@ -27,6 +27,7 @@ main = scotty 3000 $ do
 
 -- Monta a URL da requisição com base no tipo de dado e ano, http-conduit fará a requisição para a API logo em seguida
 -- T.unpack = converte Text para String pois 'IO String'
+-- Busca de campeonato brasileiro filtrado por ano (24-25)
 
     let requestUrl = case dataType of
           "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=" ++ T.unpack year
@@ -55,6 +56,7 @@ main = scotty 3000 $ do
     dataType <- pathParam "dataType" :: ActionM Text
 
   -- Monta a URL da requisição com base no tipo de dado (ano padrão 2025), http-conduit fará a requisição para a API logo em seguida
+  -- Busca de partidas libertadores e elenco do time (2025)
 
     let requestUrl = case dataType of
           "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=2025"
