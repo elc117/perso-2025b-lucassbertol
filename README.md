@@ -29,8 +29,8 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
 - Criação de rotas com **Scotty**.  
 - Manipulação de JSON com a biblioteca **Aeson**.  
 
-- ### **Integração `scotty` com a biblioteca `http-conduit`**
-    - O `scotty` cria a rota HTTP e "captura" os parâmetros
+- ### **Integração `Scotty` com a biblioteca `http-conduit`**
+    - O `Scotty` cria a rota HTTP e "captura" os parâmetros
  
       ~~~haskell
       get "/api/team/:name/:dataType" $ do
@@ -62,7 +62,7 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
    - `httpLBS` → executa a chamada e pega a resposta (status, header e body).
    - `getResponseBody` → extrai o corpo em JSON bruto.
  
-   - Se tudo ocorrer bem, **Scotty** retorna ao navegador em JSON
+   - Se tudo ocorrer bem, **`Scotty`** retorna ao navegador em JSON
 
 - ### **Rotas dinâmicas:**  
     - No começo implementei apenas uma rota fixa (`/api/team/brasileirao`).  
