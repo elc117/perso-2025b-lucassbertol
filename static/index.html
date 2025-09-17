@@ -9,8 +9,8 @@
 
 <body>
   <div class="container">
-    <h1>Estatísticas SC Internacional</h1>
-    
+    <h1><img src="images/logo.png" width="292" height="78" alt="interScore Logo"></h1>
+
     <div class="botoes">
       <button id="brasileirao" data-campeonato="brasileirao">Brasileirão</button>
       <button id="libertadores" data-campeonato="libertadores">Libertadores</button>
@@ -106,7 +106,7 @@
         const dadosRelevantes = {
           Competicao: data.matches[0]?.competition?.name || "N/A",
           Jogos: data.matches
-            .sort((a, b) => a.matchday - b.matchday) 
+            .sort((a, b) => b.matchday - a.matchday) 
             .map(jogo => ({
               Rodada: jogo.matchday,
               Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
@@ -144,7 +144,7 @@
           Competicao: data.matches[0]?.competition?.name || "N/A",
           Jogos: data.matches
             .filter(jogo => jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null)
-            .sort((a, b) => a.matchday - b.matchday) 
+            .sort((a, b) => b.matchday - a.matchday) 
             .map(jogo => ({
               Rodada: jogo.matchday,
               Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
@@ -225,11 +225,8 @@
           Visitante: jogo.awayTeam.shortName,
           Placar: "A definir",
           Competicao: jogo.competition.name,
-          Local: isHomeGame ? "🏠 Casa" : "✈️ Fora",
           EmblemaCasa: jogo.homeTeam.crest || "N/A",
           EmblemaVisitante: jogo.awayTeam.crest || "N/A",
-          PlacarCasa: jogo.score?.fullTime?.home,
-          PlacarVisitante: jogo.score?.fullTime?.away,
         };
       })
     };
