@@ -26,7 +26,7 @@ main = scotty 3000 $ do
     year <- pathParam "year" :: ActionM Text
 
 -- Monta a URL da requisição com base no tipo de dado e ano, http-conduit fará a requisição para a API logo em seguida
--- T.unpack = converte Text para String pois parseRequest espera String (IO String)
+-- T.unpack = converte Text para String pois 'IO String'
 
     let requestUrl = case dataType of
           "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=" ++ T.unpack year
