@@ -29,16 +29,24 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
 - Criação de rotas com **Scotty**.  
 - Manipulação de JSON com a biblioteca **Aeson**.  
 
-
-- **Rotas dinâmicas:**  
-    - No começo implementei apenas uma rota fixa (`/api/team/brasileirao`).  
-    - Depois percebi a necessidade de parametrizar ano e tipo de dado (competição/jogadores).  
-    - Resolvi isso adicionando rotas com parâmetros (`/api/team/:name/:dataType/:year`).
-
-
-- **Integração `scotty` com a biblioteca `http-conduit`**
+- ### **Integração `scotty` com a biblioteca `http-conduit`**
     - O `scotty` cria a rota HTTP e "captura" os parâmetros
-    - Dependendo do parâmetro, determinado endpoint da API é escolhido
+ 
+      ~~~haskell
+      get "/api/team/:name/:dataType" $ do
+          dataType <- pathParam "dataType" :: ActionM Text
+      ~~~
+      
+    - Dependendo do parâmetro, determinado endpoint da API é escolhido pelo código
+ 
+      ~~~haskell
+    
+      let requestUrl = case dataType of
+            "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=2025"
+            "libertadores" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2152&season=2025"
+            "jogadores" -> "http://api.football-data.org/v4/teams/6684"
+      ~~~ 
+
     - `http-conduit` faz a chamada externa:
 
 
@@ -51,13 +59,17 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
        
    - `parseRequest` → prepara a requisição.
    - `setRequestHeader` → adiciona o token de autenticação.
-   - `httpLBS` → executa a chamada e pega a resposta.
+   - `httpLBS` → executa a chamada e pega a resposta (status, header e body).
    - `getResponseBody` → extrai o corpo em JSON bruto.
  
    - Se tudo ocorrer bem, **scotty** retorna ao navegador em JSON
 
+- ### **Rotas dinâmicas:**  
+    - No começo implementei apenas uma rota fixa (`/api/team/brasileirao`).  
+    - Depois percebi a necessidade de parametrizar ano e tipo de dado (competição/jogadores).  
+    - Resolvi isso adicionando rotas com parâmetros (`/api/team/:name/:dataType/:year`).
 
-- **Tratamento de erros:**
+- ### **Tratamento de erros:**
   - Decode muitas vezes retornava com `nothing`
   - Com o Scotty, consegui devolver uma resposta JSON de erro no lugar de deixar o servidor não funcionar:
  
@@ -65,7 +77,7 @@ Durante o desenvolvimento, foram explorados conceitos fundamentais de programaç
      case (decode body :: Maybe Value) of
      Just val -> json val
      Nothing  -> json $ object ["erro" .= ("não consegui ler os dados" :: String)]
-    ~~~ 
+    ~~~
 ---
 
 ## Orientações para Execução
