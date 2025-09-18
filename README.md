@@ -34,23 +34,48 @@ request <- parseRequest requestUrl
 let requestAuth = setRequestHeader "X-Auth-Token" [BS.pack apiKey] request
 ```
 
-### 2. Parsing e Manipulação de JSON
+### 2. Roteamento Dinâmico
 
-**2.1** Extrair dados específicos do JSON cru da API
+**2.1** Criar rotas dinâmicas para diferentes competições e anos
+
+```haskell
+-- Tentativa com rotas hardcoded
+get "/api/brasileirao/2024" $ do
+get "/api/brasileirao/2025" $ do
+get "/api/libertadores/2024" $ do
+```
+
+**2.2** Parametrização de rotas
+
+```haskell
+-- Trecho do código com rotas parametrizadas
+get "/api/team/:name/:dataType/:year" $ do
+  dataType <- pathParam "dataType" :: ActionM Text
+  year <- pathParam "year" :: ActionM Text
+  
+  let requestUrl = case dataType of
+        "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=" ++ T.unpack year
+        "libertadores" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2152&season=" ++ T.unpack year
+```
+
+
+### 3. Parsing e Manipulação de JSON
+
+**3.1** Extrair dados específicos do JSON cru da API
 
 ```haskell
 case (decode body :: Maybe Value) of
   Just val -> json val  -- Retornava tudo, sem filtros
 ```
 
-**2.2** Desenvolvimento de [parsers](https://www.google.com/search?q=o+que+s%C3%A3o+parsers+em+haskell+e+como+usar&client=firefox-b-lm&sca_esv=c86351f7882d4df3&sxsrf=AE3TifM0AtBSS3MUugnIy85Tfn-Jtytscg%3A1758156836195&ei=JFjLaPXWC9PN1sQP4OST2AQ&ved=0ahUKEwj1-LjNjOGPAxXTppUCHWDyBEsQ4dUDCBA&uact=5&oq=o+que+s%C3%A3o+parsers+em+haskell&gs_lp=Egxnd3Mtd2l6LXNlcnAiKW8gcXVlIHPDo28gcGFyc2VycyBlbSBoaXNrbGVsIGUgY29tbyB1c2FyMgUQIRigAUjvGFDUBFjCFnACeACQAQCYAa0CoAHfEqoBBzAuOS4yLjG4AQPIAQD4AQGYAg6gAs8TwgIIEAAYsAMY7wXCAgUQIRifBZgDAIgGAZAGA5IHBzIuOC4zLjGgB7AwsgcHMC44LjMuMbgHvhPCBwYyLTEzLjHIB0k&sclient=gws-wiz-serp)
+**3.2** Desenvolvimento de [parsers](https://www.google.com/search?q=o+que+s%C3%A3o+parsers+em+haskell+e+como+usar&client=firefox-b-lm&sca_esv=c86351f7882d4df3&sxsrf=AE3TifM0AtBSS3MUugnIy85Tfn-Jtytscg%3A1758156836195&ei=JFjLaPXWC9PN1sQP4OST2AQ&ved=0ahUKEwj1-LjNjOGPAxXTppUCHWDyBEsQ4dUDCBA&uact=5&oq=o+que+s%C3%A3o+parsers+em+haskell&gs_lp=Egxnd3Mtd2l6LXNlcnAiKW8gcXVlIHPDo28gcGFyc2VycyBlbSBoaXNrbGVsIGUgY29tbyB1c2FyMgUQIRigAUjvGFDUBFjCFnACeACQAQCYAa0CoAHfEqoBBzAuOS4yLjG4AQPIAQD4AQGYAg6gAs8TwgIIEAAYsAMY7wXCAgUQIRifBZgDAIgGAZAGA5IHBzIuOC4zLjGgB7AwsgcHMC44LjMuMbgHvhPCBwYyLTEzLjHIB0k&sclient=gws-wiz-serp)
 específicos
 
 Pesquisando sobre manipulação de JSON em Haskell, descobri o conceito de **parsing** que é uma técnica que permite transformar dados brutos em estruturas organizadas e type-safe.
 
 Implementei parsers específicos para cada tipo de dado (placares, times, datas).
 
-**2.3** Por que usar parse? Para nunca quebrar o programa!
+**3.3** Por que usar parse? 
 
 ```haskell
 parseMatches :: Value -> Parser [Value] -- extrai lista de partidas
@@ -75,9 +100,9 @@ parseScore = withObject "match" $ \o -> do
     _ -> return (Nothing, Nothing)
 ```
 
-### 3. Sistema de Filtros
+### 4. Sistema de Filtros
 
-**3.1** Como aplicar múltiplos filtros de forma funcional?
+**4.1** Como aplicar múltiplos filtros de forma funcional?
 
   - Na `main.hs`, a filtragem ocorre antes de os dados serem enviados para o frontend
 
@@ -88,7 +113,7 @@ filtrarJogos "finalizados" matches
 filtrarJogos "futuros" matches 
 ```
 
-**3.2** Composição de funções
+**4.2** Composição de funções
 
 ```haskell
 -- 1. Parse: Extrai array de matches 
@@ -114,30 +139,6 @@ aplicarFiltros filtro local dadosOriginais =
   ]
 }
 ``` 
-
-### 4. Roteamento Dinâmico
-
-**4.1** Criar rotas dinâmicas para diferentes competições e anos
-
-```haskell
--- Tentativa com rotas hardcoded
-get "/api/brasileirao/2024" $ do
-get "/api/brasileirao/2025" $ do
-get "/api/libertadores/2024" $ do
-```
-
-**4.2** Parametrização de rotas
-
-```haskell
--- Trecho do código com rotas parametrizadas
-get "/api/team/:name/:dataType/:year" $ do
-  dataType <- pathParam "dataType" :: ActionM Text
-  year <- pathParam "year" :: ActionM Text
-  
-  let requestUrl = case dataType of
-        "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=" ++ T.unpack year
-        "libertadores" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2152&season=" ++ T.unpack year
-```
 
 ### 5. Filtros por Local (Casa/Fora)
 
