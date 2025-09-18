@@ -43,7 +43,7 @@ case (decode body :: Maybe Value) of
   Just val -> json val  -- Retornava tudo, sem filtros
 ```
 
-**2.2** Desenvolvimento de [parsers](https://www.google.com/search?q=o+que+s%C3%A3o+parsers+em+haskell+e+como+usar&client=firefox-b-lm&sca_esv=c86351f7882d4df3&sxsrf=AE3TifM0AtBSS3MUugnIy85Tfn-Jtytscg%3A1758156836195&ei=JFjLaPXWC9PN1sQP4OST2AQ&ved=0ahUKEwj1-LjNjOGPAxXTppUCHWDyBEsQ4dUDCBA&uact=5&oq=o+que+s%C3%A3o+parsers+em+haskell+e+como+usar&gs_lp=Egxnd3Mtd2l6LXNlcnAiKW8gcXVlIHPDo28gcGFyc2VycyBlbSBoaXNrbGVsIGUgY29tbyB1c2FyMgUQIRigAUjvGFDUBFjCFnACeACQAQCYAa0CoAHfEqoBBzAuOS4yLjG4AQPIAQD4AQGYAg6gAs8TwgIIEAAYsAMY7wXCAgUQIRifBZgDAIgGAZAGA5IHBzIuOC4zLjGgB7AwsgcHMC44LjMuMbgHvhPCBwYyLTEzLjHIB0k&sclient=gws-wiz-serp)
+**2.2** Desenvolvimento de [parsers](https://www.google.com/search?q=o+que+s%C3%A3o+parsers+em+haskell+e+como+usar&client=firefox-b-lm&sca_esv=c86351f7882d4df3&sxsrf=AE3TifM0AtBSS3MUugnIy85Tfn-Jtytscg%3A1758156836195&ei=JFjLaPXWC9PN1sQP4OST2AQ&ved=0ahUKEwj1-LjNjOGPAxXTppUCHWDyBEsQ4dUDCBA&uact=5&oq=o+que+s%C3%A3o+parsers+em+haskell&gs_lp=Egxnd3Mtd2l6LXNlcnAiKW8gcXVlIHPDo28gcGFyc2VycyBlbSBoaXNrbGVsIGUgY29tbyB1c2FyMgUQIRigAUjvGFDUBFjCFnACeACQAQCYAa0CoAHfEqoBBzAuOS4yLjG4AQPIAQD4AQGYAg6gAs8TwgIIEAAYsAMY7wXCAgUQIRifBZgDAIgGAZAGA5IHBzIuOC4zLjGgB7AwsgcHMC44LjMuMbgHvhPCBwYyLTEzLjHIB0k&sclient=gws-wiz-serp)
 específicos
 
 Pesquisando sobre manipulação de JSON em Haskell, descobri o conceito de **parsing** que é uma técnica que permite transformar dados brutos em estruturas organizadas e type-safe.
@@ -104,6 +104,16 @@ aplicarFiltros filtro local dadosOriginais =
       in object ["matches" .= matchesFiltrados]
     _ -> dadosOriginais
 ```
+
+**Exemplo de saída flitrada:**
+```json
+{
+  "matches": [
+    {"matchday": 5, "homeTeam": "Internacional", "status": "FINISHED"},
+    {"matchday": 15, "homeTeam": "Internacional", "status": "FINISHED"}
+  ]
+}
+``` 
 
 ### 4. Roteamento Dinâmico
 
