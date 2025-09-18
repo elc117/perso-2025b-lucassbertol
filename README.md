@@ -1,4 +1,4 @@
-## Identificação
+# Identificação
 
 - **Autor:** Lucas Salvini Bertol  
 - **Curso:** Sistemas de Informação  
@@ -6,13 +6,13 @@
 
 ---
 
-## Tema / Objetivo
+# Tema / Objetivo
 
 O *interScore* é uma aplicação web para consulta de informações do Sport Club Internacional, desenvolvida com **backend em Haskell** usando **`Scotty`** e frontend simples em HTML/JavaScript. O projeto consome dados da [API Football-Data.org](https://www.football-data.org/) para exibir informações sobre jogos do Brasileirão, Libertadores, calendário e elenco atual do clube, com filtros específicos em cada ocasão.
 
 ---
 
-## Processo de desenvolvimento
+# Processo de desenvolvimento
 
 ### 1. Configuração Inicial da API
 
@@ -163,7 +163,9 @@ jogoCasa jogo =
     _ -> False
 ```
 
-## Orientações para execução
+---
+
+# Orientações para execução
 
 ```bash
 # Instalar dependências Haskell
