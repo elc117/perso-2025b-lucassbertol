@@ -39,7 +39,7 @@ let requestAuth = setRequestHeader "X-Auth-Token" [BS.pack apiKey] request
 **2.1** Criar rotas dinâmicas para diferentes competições e anos
 
 ```haskell
--- Tentativa com rotas hardcoded
+-- tentativa com rotas hardcoded
 get "/api/brasileirao/2024" $ do
 get "/api/brasileirao/2025" $ do
 get "/api/libertadores/2024" $ do
@@ -48,7 +48,7 @@ get "/api/libertadores/2024" $ do
 **2.2** Parametrização de rotas
 
 ```haskell
--- Trecho do código com rotas parametrizadas
+-- trecho do código com rotas parametrizadas
 get "/api/team/:name/:dataType/:year" $ do
   dataType <- pathParam "dataType" :: ActionM Text
   year <- pathParam "year" :: ActionM Text
@@ -65,7 +65,7 @@ get "/api/team/:name/:dataType/:year" $ do
 
 ```haskell
 case (decode body :: Maybe Value) of
-  Just val -> json val  -- Retornava tudo, sem filtros
+  Just val -> json val  -- retornava tudo sem filtros
 ```
 
 **3.2** Desenvolvimento de [parsers](https://www.google.com/search?q=o+que+s%C3%A3o+parsers+em+haskell+e+como+usar&client=firefox-b-lm&sca_esv=c86351f7882d4df3&sxsrf=AE3TifM0AtBSS3MUugnIy85Tfn-Jtytscg%3A1758156836195&ei=JFjLaPXWC9PN1sQP4OST2AQ&ved=0ahUKEwj1-LjNjOGPAxXTppUCHWDyBEsQ4dUDCBA&uact=5&oq=o+que+s%C3%A3o+parsers+em+haskell&gs_lp=Egxnd3Mtd2l6LXNlcnAiKW8gcXVlIHPDo28gcGFyc2VycyBlbSBoaXNrbGVsIGUgY29tbyB1c2FyMgUQIRigAUjvGFDUBFjCFnACeACQAQCYAa0CoAHfEqoBBzAuOS4yLjG4AQPIAQD4AQGYAg6gAs8TwgIIEAAYsAMY7wXCAgUQIRifBZgDAIgGAZAGA5IHBzIuOC4zLjGgB7AwsgcHMC44LjMuMbgHvhPCBwYyLTEzLjHIB0k&sclient=gws-wiz-serp)
