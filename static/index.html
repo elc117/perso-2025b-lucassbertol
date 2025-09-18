@@ -38,65 +38,77 @@
       </select>
       <button id="aplicar-filtro-calendario">Buscar</button>
     </div>
-    
+
     <div id="saida"></div>
   </div>
 
   <script>
 
-        function formatarParaTexto(dados) {
-          let texto = '';
-
-          if (dados.Competicao) {
-            texto += `🏆 COMPETIÇÃO: ${dados.Competicao}<br><br><br>`;
-          }
-
-          if (dados.Jogos && dados.Jogos.length > 0) {
-            dados.Jogos.forEach(jogo => {
-              texto += `<br>⚽ Rodada ${jogo.Rodada}<br>`;
-              texto += `📅${jogo.Data}<br><br>`;
-              texto += `<img src="${jogo.EmblemaCasa}" width="20" height="20"> ${jogo.Casa} | ${jogo.PlacarCasa} <br>`;
-              texto += `<img src="${jogo.EmblemaVisitante}" width="20" height="20"> ${jogo.Visitante} | ${jogo.PlacarVisitante} <br><br><br>`;
-            });
-          }
-
-        if (dados.Jogadores && dados.Jogadores.length > 0) {
-          texto += `👥 ELENCO:<br><br><br>`;
-          dados.Jogadores.forEach(jogador => {
-            texto += `👤 ${jogador.Nome}<br>`;
-            texto += `⚽ ${jogador.Posicao}<br>`;
-            texto += `🌍 ${jogador.Nacionalidade}<br>`;
-            texto += `📅 ${jogador.Nascimento}<br><br><br>`;
-          });
-        }
-
-        return texto;
-      }
-    
-    function formatarPartidasCalendario(dados) {
+    function formatarParaTexto(dados) {
       let texto = '';
-      
+
       if (dados.Competicao) {
-        texto += `📅 ${dados.Competicao}<br><br><br>`;
+        texto += `<div class="cardTitle">`;
+        texto += `${dados.Competicao}<br>`;
+        texto += `</div>`;
       }
-      
+
       if (dados.Jogos && dados.Jogos.length > 0) {
         dados.Jogos.forEach(jogo => {
-          texto += `🏆 ${jogo.Competicao}<br>`;
-          texto += `📅 ${jogo.Data}<br><br>`;
+          texto += `<div class="card">`;
+          texto += `Rodada ${jogo.Rodada}<br>`;
+          texto += `${jogo.Data}<br><br>`;
+          texto += `<img src="${jogo.EmblemaCasa}" width="20" height="20"> ${jogo.Casa} | ${jogo.PlacarCasa} <br>`;
+          texto += `<img src="${jogo.EmblemaVisitante}" width="20" height="20"> ${jogo.Visitante} | ${jogo.PlacarVisitante} <br>`;
+          texto += `</div>`;
+        });
+      }
+
+      if (dados.Jogadores && dados.Jogadores.length > 0) {
+        texto += `<div class="cardTitle">`;
+        texto += `ELENCO:<br>`;
+        texto += `</div>`;
+        dados.Jogadores.forEach(jogador => {
+          texto += `<div class="card">`;
+          texto += `${jogador.Nome}<br>`;
+          texto += `${jogador.Posicao}<br>`;
+          texto += `${jogador.Nacionalidade}<br>`;
+          texto += `${jogador.Nascimento}<br>`;
+          texto += `</div>`;
+        });
+      }
+
+      return texto;
+    }
+
+    function formatarPartidasCalendario(dados) {
+      let texto = '';
+
+      if (dados.Competicao) {
+        texto += `<div class="cardTitle">`;
+        texto += `${dados.Competicao}<br>`;
+        texto += `</div>`;
+      }
+
+      if (dados.Jogos && dados.Jogos.length > 0) {
+        dados.Jogos.forEach(jogo => {
+          texto += `<div class="card">`;
+          texto += `${jogo.Competicao}`;
+          texto += `${jogo.Data}<br><br>`;
           texto += `<img src="${jogo.EmblemaCasa}" width="20" height="20"> ${jogo.Casa} <br>`;
-          texto += `<img src="${jogo.EmblemaVisitante}" width="20" height="20"> ${jogo.Visitante} <br><br><br>`;
+          texto += `<img src="${jogo.EmblemaVisitante}" width="20" height="20"> ${jogo.Visitante} <br>`;
+          texto += `</div>`;
         });
       } else {
         texto += "Nenhuma partida futura encontrada.<br>";
       }
-      
+
       return texto;
     }
 
     async function buscarDados(campeonato) {
       try {
-        const time = "internacional"; 
+        const time = "internacional";
         const resp = await fetch(`/api/team/${time}/${campeonato}/`);
         const data = await resp.json();
 
@@ -106,7 +118,6 @@
         const dadosRelevantes = {
           Competicao: data.matches[0]?.competition?.name || "N/A",
           Jogos: data.matches
-            .sort((a, b) => b.matchday - a.matchday) 
             .map(jogo => ({
               Rodada: jogo.matchday,
               Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
@@ -134,7 +145,7 @@
     async function buscarDadosComAno(campeonato, ano) {
       try {
         const time = "internacional";
-        const resp = await fetch(`/api/team/${time}/${campeonato}/${ano}`);
+        const resp = await fetch(`/api/team/${time}/${campeonato}/${ano}?filtro=finalizados`);
         const data = await resp.json();
 
         console.log("Dados recebidos:", data);
@@ -143,8 +154,6 @@
         const dadosRelevantes = {
           Competicao: data.matches[0]?.competition?.name || "N/A",
           Jogos: data.matches
-            .filter(jogo => jogo.score?.fullTime?.home !== null && jogo.score?.fullTime?.away !== null)
-            .sort((a, b) => b.matchday - a.matchday) 
             .map(jogo => ({
               Rodada: jogo.matchday,
               Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
@@ -173,69 +182,43 @@
     }
 
     async function buscarPartidasSemResultado(filtroLocal = "todos") {
-  try {
-    const time = "internacional";
+      try {
+        const time = "internacional";
 
-    const respBrasileirao = await fetch(`/api/team/${time}/brasileirao/2025`);
-    const dataBrasileirao = await respBrasileirao.json();
-    
-    const todasPartidas = [
-      ...(dataBrasileirao.matches || []),
-    ];
-    
-    let partidasSemResultado = todasPartidas.filter(jogo => 
-      jogo.score?.fullTime?.home === null || 
-      jogo.score?.fullTime?.away === null
-    );
-    
-    if (filtroLocal === "casa") {
-      partidasSemResultado = partidasSemResultado.filter(jogo => 
-        jogo.homeTeam.shortName === "Internacional" || 
-        jogo.homeTeam.name.includes("Internacional")
-      );
-    } else if (filtroLocal === "fora") {
-      partidasSemResultado = partidasSemResultado.filter(jogo => 
-        jogo.awayTeam.shortName === "Internacional" || 
-        jogo.awayTeam.name.includes("Internacional")
-      );
-    }
-    
-    partidasSemResultado.sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
-    
-    const dadosRelevantes = {
-      Competicao: `Próximas Partidas - Internacional ${
-        filtroLocal === "casa" ? "(Em Casa)" : 
-        filtroLocal === "fora" ? "(Fora de Casa)" : 
-        ""
-      }`,
-      Jogos: partidasSemResultado.map(jogo => {
-        const isHomeGame = jogo.homeTeam.shortName === "Internacional" || 
-                          jogo.homeTeam.name.includes("Internacional");
-        
-        return {
-          Rodada: jogo.matchday,
-          Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit', 
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          }),
-          Casa: jogo.homeTeam.shortName,
-          Visitante: jogo.awayTeam.shortName,
-          Placar: "A definir",
-          Competicao: jogo.competition.name,
-          EmblemaCasa: jogo.homeTeam.crest || "N/A",
-          EmblemaVisitante: jogo.awayTeam.crest || "N/A",
+        const resp = await fetch(`/api/team/${time}/brasileirao/2025?filtro=futuros&local=${filtroLocal}`);
+        const data = await resp.json();
+
+        const dadosRelevantes = {
+          Competicao: `Próximas Partidas`,
+          Jogos: data.matches
+            .map(jogo => {
+              const isHomeGame = jogo.homeTeam.shortName === "Internacional" ||
+                jogo.homeTeam.name.includes("Internacional");
+
+              return {
+                Rodada: jogo.matchday,
+                Data: new Date(jogo.utcDate).toLocaleDateString('pt-BR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }),
+                Casa: jogo.homeTeam.shortName,
+                Visitante: jogo.awayTeam.shortName,
+                Placar: "A definir",
+                Competicao: jogo.competition.name,
+                EmblemaCasa: jogo.homeTeam.crest || "N/A",
+                EmblemaVisitante: jogo.awayTeam.crest || "N/A",
+              };
+            })
         };
-      })
-    };
-    
-    document.getElementById("saida").innerHTML = formatarPartidasCalendario(dadosRelevantes);
-  } catch (error) {
-    document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
-  }
-}
+
+        document.getElementById("saida").innerHTML = formatarPartidasCalendario(dadosRelevantes);
+      } catch (error) {
+        document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
+      }
+    }
 
     let competicaoAtual = null;
 
@@ -243,13 +226,13 @@
     document.getElementById("brasileirao").addEventListener("click", () => {
       document.getElementById("filtros").style.display = "block";
       document.getElementById("filtros-calendario").style.display = "none";
-      document.getElementById("saida").innerHTML = ""; 
+      document.getElementById("saida").innerHTML = "";
     });
 
 
     document.getElementById("libertadores").addEventListener("click", () => {
       document.getElementById("filtros").style.display = "none";
-      document.getElementById("filtros-calendario").style.display = "none"; 
+      document.getElementById("filtros-calendario").style.display = "none";
       buscarDados("libertadores");
     });
 
@@ -260,12 +243,12 @@
 
     document.getElementById("jogadores").addEventListener("click", async () => {
       document.getElementById("filtros").style.display = "none";
-      document.getElementById("filtros-calendario").style.display = "none"; 
+      document.getElementById("filtros-calendario").style.display = "none";
       try {
         const time = "internacional";
-        const resp = await fetch(`/api/team/${time}/jogadores`);  
+        const resp = await fetch(`/api/team/${time}/jogadores`);
         const data = await resp.json();
-        
+
         const dadosRelevantes = {
           Jogadores: data.squad.map(jogador => ({
             Nome: jogador.name,
@@ -281,16 +264,16 @@
       }
     });
 
-      document.getElementById("calendario").addEventListener("click", () => {
-        document.getElementById("filtros").style.display = "none";
-        document.getElementById("filtros-calendario").style.display = "block";
-        document.getElementById("saida").innerHTML = "";
-      });
+    document.getElementById("calendario").addEventListener("click", () => {
+      document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-calendario").style.display = "block";
+      document.getElementById("saida").innerHTML = "";
+    });
 
     document.getElementById("aplicar-filtro-calendario").addEventListener("click", () => {
-  const filtroLocal = document.getElementById("local-select").value;
-  buscarPartidasSemResultado(filtroLocal);
-});
+      const filtroLocal = document.getElementById("local-select").value;
+      buscarPartidasSemResultado(filtroLocal);
+    });
 
     function esconderFiltros() {
       document.getElementById("filtros").style.display = "none";
