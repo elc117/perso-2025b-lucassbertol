@@ -59,7 +59,7 @@ get "/api/team/:name/:dataType/:year" $ do
 ```
 
 
-### 3. Parsing e Manipulação de JSON
+### 3. Manipulação de JSON e parsing
 
 **3.1** Extrair dados específicos do JSON cru da API
 
@@ -75,7 +75,7 @@ Pesquisando sobre manipulação de JSON em Haskell, descobri o conceito de **par
 
 Implementei parsers específicos para cada tipo de dado (placares, times, datas).
 
-**3.3** Por que usar parse? 
+### **3.3** Como os dados são extraidos do JSON
 
 ```haskell
 parseMatches :: Value -> Parser [Value] -- extrai lista de partidas
@@ -99,6 +99,8 @@ parseScore = withObject "match" $ \o -> do
         _ -> return (Nothing, Nothing) -- se nao existir
     _ -> return (Nothing, Nothing)
 ```
+
+### **3.4** Como integrar os **parsers** com as rotas do `Scotty` 
 
 ### 4. Sistema de Filtros
 
