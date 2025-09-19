@@ -18,11 +18,15 @@ O *interScore* é uma aplicação web para consulta de informações do Sport Cl
 
 **1.1** Estabelecer comunicação com a [API](https://www.football-data.org/)
 
+- Primeiramente realizei um teste com uma rota simples:
+
 ```haskell
 main = scotty 3000 $ do
   get "/api/test" $ do
     text "API funcionando"
 ```
+
+- Vi que era necessário uma autenticação para usar a API, segui o tutorial do [site](https://www.football-data.org/) deles para conseguir a Key e fazer a autenticação
 
 **1.2** Implementação da autenticação
 
@@ -38,6 +42,8 @@ let requestAuth = setRequestHeader "X-Auth-Token" [BS.pack apiKey] request
 
 **2.1** Criar rotas dinâmicas para diferentes competições e anos
 
+- Criei mais rotas para teste com diferentes competições e anos. As rotas se encontram especificadas no website da API.
+
 ```haskell
 -- tentativa com rotas hardcoded
 get "/api/brasileirao/2024" $ do
@@ -46,6 +52,8 @@ get "/api/libertadores/2024" $ do
 ```
 
 **2.2** Parametrização de rotas
+
+- Inseri parâmetros nas rotas, facilitando e compactando o código para suprir minhas necessidades
 
 ```haskell
 -- trecho do código com rotas parametrizadas
@@ -63,73 +71,88 @@ get "/api/team/:name/:dataType/:year" $ do
 
 **3.1** Extrair dados específicos do JSON cru da API
 
+- A integração com football-data.org apresentou desafios na manipulação de dados JSON extensos e complexos. A estrutura retornada pela API possui múltiplos níveis de resposta, com campos opcionais que podem ou não estar presentes dependendo da escolha do usuário.
+
+**3.2** Desenvolvimento de parsers específicos
+
+- Pesquisando sobre manipulação de JSON em Haskell, descobri o conceito de **parsing** que é uma técnica que permite transformar dados brutos em estruturas organizadas e type-safe.
+
+- Criei parsers específicos para cada tipo de dado necessário. Essa estratégia permitiu maior flexibilidade e facilita a manutenção do código no futuro
+
+- Vi uma analogia quando pesquisava por **parsing** que achei interessante:
+  - É como chamar um entregador:
+  - JSON = Prédio com apartamentos
+  - Parser = Entregador
+  - Você = Quem pede: "Entregador, vá até apartamento 'score.fullTime.home' e me traga o que está lá"
+
+
 ```haskell
-case (decode body :: Maybe Value) of
-  Just val -> json val  -- retornava tudo sem filtros
-```
-
-**3.2** Desenvolvimento de [parsers](https://www.google.com/search?q=o+que+s%C3%A3o+parsers+em+haskell+e+como+usar&client=firefox-b-lm&sca_esv=c86351f7882d4df3&sxsrf=AE3TifM0AtBSS3MUugnIy85Tfn-Jtytscg%3A1758156836195&ei=JFjLaPXWC9PN1sQP4OST2AQ&ved=0ahUKEwj1-LjNjOGPAxXTppUCHWDyBEsQ4dUDCBA&uact=5&oq=o+que+s%C3%A3o+parsers+em+haskell&gs_lp=Egxnd3Mtd2l6LXNlcnAiKW8gcXVlIHPDo28gcGFyc2VycyBlbSBoaXNrbGVsIGUgY29tbyB1c2FyMgUQIRigAUjvGFDUBFjCFnACeACQAQCYAa0CoAHfEqoBBzAuOS4yLjG4AQPIAQD4AQGYAg6gAs8TwgIIEAAYsAMY7wXCAgUQIRifBZgDAIgGAZAGA5IHBzIuOC4zLjGgB7AwsgcHMC44LjMuMbgHvhPCBwYyLTEzLjHIB0k&sclient=gws-wiz-serp)
-específicos
-
-Pesquisando sobre manipulação de JSON em Haskell, descobri o conceito de **parsing** que é uma técnica que permite transformar dados brutos em estruturas organizadas e type-safe.
-
-Implementei parsers específicos para cada tipo de dado (placares, times, datas).
-
-### **3.3** Como os dados são extraidos do JSON
-
-```haskell
-parseMatches :: Value -> Parser [Value] -- extrai lista de partidas
-parseMatches = withObject "response" $ \o -> do -- lambda que recebe o objeto do JSON
+-- parser principal para extrair array de partidas
+parseMatches :: Value -> Parser [Value]
+parseMatches = withObject "response" $ \o -> do
   Array matches <- o .: "matches"
-  return (V.toList matches) -- vetor pra lista normal
+  return (V.toList matches)
+
+-- parsers específicos para diferentes campos
+parseScore :: Value -> Parser (Maybe Int, Maybe Int)
+parseHomeTeam :: Value -> Parser String
+parseAwayTeam :: Value -> Parser String
+parseMatchday :: Value -> Parser Int
 ```
 
+- Tabém aderi ao uso de `parseMaybe` em algumas ocasiões, para que falhas na extração de dados não acabem quebrando o sistema inteiro
+
 ```haskell
-parseScore :: Value -> Parser (Maybe Int, Maybe Int) -- extrai placares | maybe int pois dados podem nao existir
+jogoFinalizado :: Value -> Bool
+jogoFinalizado jogo = 
+  case parseMaybe parseScore jogo of
+    Just (Just _, Just _) -> True -- ambos os placares existem
+    _ -> False                    -- qualquer falha = jogo não finalizado em vez de erro
+```
+
+- O parser mais complexo desenvolvido foi o `parseScore` com o uso de operadores opcionais (`.:?`) em vez dos obrigatóorios (`.:`) para funcionar com jogos ja terminados e jogos futuros que no caso esão sem os placares.
+  
+```haskell
+parseScore :: Value -> Parser (Maybe Int, Maybe Int)
 parseScore = withObject "match" $ \o -> do
-  score <- o .:? "score"
+  score <- o .:? "score"          -- busca opcional
   case score of
     Just s -> do
-      fullTime <- s .:? "fullTime" 
+      fullTime <- s .:? "fullTime"  -- jogo finalizado (ou não) 
       case fullTime of
         Just ft -> do
-          home <- ft .:? "home"
-          away <- ft .:? "away"  
+          home <- ft .:? "home"     -- (casa ou fora)
+          away <- ft .:? "away"     
           return (home, away)
-        _ -> return (Nothing, Nothing) -- se nao existir
+        _ -> return (Nothing, Nothing)
     _ -> return (Nothing, Nothing)
 ```
 
-### **3.4** Como integrar os **parsers** com as rotas do `Scotty` 
-
 ### 4. Sistema de Filtros
 
-**4.1** Como aplicar múltiplos filtros de forma funcional?
-
-  - Na `main.hs`, a filtragem ocorre antes de os dados serem enviados para o frontend
-
-```haskell
--- primeira versão
-filtrarJogos :: Text -> [Value] -> [Value]
-filtrarJogos "finalizados" matches 
-filtrarJogos "futuros" matches 
-```
-
-**4.2** Composição de funções
+- Na `main.hs`, a filtragem ocorre antes de os dados serem enviados para o frontend
+- Os dados passam por varias etapas sequenciais 
 
 ```haskell
--- 1. Parse: Extrai array de matches 
--- 2. filtrarPorStatus "finalizados": Remove jogos SCHEDULED
--- 3. filtrarPorLocal "casa": Remove jogos onde Inter joga fora  
--- 4. ordenarPorRodada: Ordena por matchday (5, 15)
-
-aplicarFiltros :: Text -> Text -> Value -> Value
+aplicarFiltros :: Text -> Text -> Value -> Value   -- função principal de aplicar filtros
 aplicarFiltros filtro local dadosOriginais = 
   case parseMaybe parseMatches dadosOriginais of
     Just matches -> 
-      let matchesFiltrados = ordenarPorRodada (filtrarPorLocal local (filtrarPorStatus filtro matches))
-      in object ["matches" .= matchesFiltrados]
+      let matchesFiltrados = ordenarPorRodada (filtrarPorLocal local (filtrarPorStatus filtro matches))    -- dados passam por 3 filtros
+      in object ["matches" .= matchesFiltrados]   -- json de resposta construido
     _ -> dadosOriginais
+```
+
+- Outros filtros desenvolvidos:
+```haskell
+filtrarPorStatus :: Text -> [Value] -> [Value]
+jogoFinalizado :: Value -> Bool
+jogoFuturo :: Value -> Bool
+filtrarPorLocal :: Text -> [Value] -> [Value]
+jogoCasa :: Value -> Bool
+jogoFora :: Value -> Bool
+ordenarPorRodada :: [Value] -> [Value]
+extrairRodada :: Value -> Int
 ```
 
 **Exemplo de saída flitrada:**
@@ -144,10 +167,10 @@ aplicarFiltros filtro local dadosOriginais =
 
 ### 5. Filtros por Local (Casa/Fora)
 
-**5.1** Identificar quando o Internacional joga em casa ou fora
+**5.1** Caso curioso no filtro de identificar quando o Internacional joga em casa ou fora
 
 ```haskell
--- Primeira tentativa
+-- primeira tentativa
 jogoCasa :: Value -> Bool
 jogoCasa jogo = 
   case parseMaybe parseHomeTeam jogo of
@@ -155,10 +178,11 @@ jogoCasa jogo =
     _ -> False
 ```
 
-**5.2** Descobri que por algum motivo as vezes a API retornava "Internacional" e outras vezes "Sport Club Inernacional"
+- Descobri que por algum motivo as vezes a API retornava "Internacional" e outras vezes "Sport Club Inernacional" causando erro no teste acima
+- A solução foi implementar `T.isInfixOf`, que "detecta se tem uma palavra dentro da palavra escolhida", no meu caso, verifica se tem Internacional dentro do escolhido
 
 ```haskell
--- Versão final - busca por substring
+-- final - busca por substring
 jogoCasa :: Value -> Bool
 jogoCasa jogo = 
   case parseMaybe parseHomeTeam jogo of
