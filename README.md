@@ -110,7 +110,7 @@ jogoFinalizado jogo =
     _ -> False                    -- qualquer falha = jogo não finalizado em vez de erro
 ```
 
-- O parser mais complexo desenvolvido foi o `parseScore` com o uso de operadores opcionais (`.:?`) em vez dos obrigatóorios (`.:`) para funcionar com jogos ja terminados e jogos futuros que no caso esão sem os placares.
+- O parser mais complexo desenvolvido foi o `parseScore`, com o uso de operadores opcionais (`.:?`), em vez dos obrigatóorios (`.:`), para funcionar com jogos ja terminados e jogos futuros, que no caso estão sem os placares.
   
 ```haskell
 parseScore :: Value -> Parser (Maybe Int, Maybe Int)
