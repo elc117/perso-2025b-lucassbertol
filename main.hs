@@ -11,17 +11,18 @@ import Web.Scotty
 import Data.List (sortBy)
 import Data.Ord (comparing)
 import qualified Data.Vector as V
+
 -- Chave para autenticação na API de futebol
 
 apiKey :: String
 apiKey = "a8b13670a43b43079197e65af09c6065"
 
 -- Função principal que aplica todos os filtros
-aplicarFiltros :: Text -> Text -> Value -> Value
-aplicarFiltros filtro local dadosOriginais = 
+aplicarFiltros :: Text -> Text -> Text -> Value -> Value
+aplicarFiltros filtro local resultado dadosOriginais = 
   case parseMaybe parseMatches dadosOriginais of
     Just matches -> 
-      let matchesFiltrados = ordenarPorRodada (filtrarPorLocal local (filtrarPorStatus filtro matches))
+      let matchesFiltrados = ordenarPorRodada (filtrarPorResultado resultado (filtrarPorLocal local (filtrarPorStatus filtro matches)))
       in object ["matches" .= matchesFiltrados]
     _ -> dadosOriginais
 
@@ -36,6 +37,36 @@ filtrarPorStatus :: Text -> [Value] -> [Value]
 filtrarPorStatus "finalizados" matches = filter jogoFinalizado matches
 filtrarPorStatus "futuros" matches = filter jogoFuturo matches  
 filtrarPorStatus _ matches = matches -- "todos" ou qualquer outro
+
+filtrarPorResultado :: Text -> [Value] -> [Value]
+filtrarPorResultado "vitoria" matches = filter vitoria matches
+filtrarPorResultado "derrota" matches = filter derrota matches
+filtrarPorResultado "empate" matches = filter empate matches
+filtrarPorResultado _ matches = matches -- "todos" ou qualquer outro
+
+vitoria :: Value -> Bool
+vitoria jogo =
+  case parseMaybe parseScore jogo of
+    Just (Just home, Just away) -> 
+      if jogoCasa jogo 
+      then home > away 
+      else away > home
+    _ -> False
+
+derrota :: Value -> Bool
+derrota jogo =
+  case parseMaybe parseScore jogo of
+    Just (Just home, Just away) ->
+      if jogoCasa jogo 
+      then home < away 
+      else away < home
+    _ -> False
+
+empate :: Value -> Bool
+empate jogo =
+  case parseMaybe parseScore jogo of
+    Just (Just home, Just away) -> home == away
+    _ -> False
 
 -- Filtrar por local (casa/fora)
 filtrarPorLocal :: Text -> [Value] -> [Value]
@@ -74,7 +105,7 @@ extrairRodada jogo =
   case parseMaybe parseMatchday jogo of
     Just rodada -> rodada
     _ -> 0
-
+    
 -- Parsers para extrair dados do JSON
 
 parseScore :: Value -> Parser (Maybe Int, Maybe Int)
@@ -119,8 +150,10 @@ main = scotty 3000 $ do
     -- Parâmetros opcionais de filtro
     filtroMaybe <- queryParamMaybe "filtro"
     localMaybe <- queryParamMaybe "local"
+    resultadoMaybe <- queryParamMaybe "resultado"
     let filtro = case filtroMaybe of Just f -> f; Nothing -> "todos"
-    let local = case localMaybe of Just l -> l; Nothing -> "todos"    -- Monta a URL da requisição com base no tipo de dado e ano, http-conduit fará a requisição para a API logo em seguida
+    let local = case localMaybe of Just l -> l; Nothing -> "todos"
+    let resultado = case resultadoMaybe of Just r -> r; Nothing -> "todos"    -- Monta a URL da requisição com base no tipo de dado e ano, http-conduit fará a requisição para a API logo em seguida
 
 
     let requestUrl = case dataType of
@@ -137,12 +170,10 @@ main = scotty 3000 $ do
     response <- httpLBS requestAuth
     let body = getResponseBody response
 
-    -- Tratamento de erro na decodificação do JSON da resposta da API
-
     case (decode body :: Maybe Value) of
       Just val -> do
         -- Filtrar os dados com base nos parâmetros 
-        let dadosFiltrados = aplicarFiltros filtro local val
+        let dadosFiltrados = aplicarFiltros filtro local resultado val
         json dadosFiltrados
       Nothing -> json $ object ["erro" .= ("não consegui ler os dados" :: String)]
 
@@ -154,8 +185,10 @@ main = scotty 3000 $ do
     -- Parâmetros opcionais de filtro  
     filtroMaybe <- queryParamMaybe "filtro"
     localMaybe <- queryParamMaybe "local"
+    resultadoMaybe <- queryParamMaybe "resultado"
     let filtro = case filtroMaybe of Just f -> f; Nothing -> "todos"
-    let local = case localMaybe of Just l -> l; Nothing -> "todos"    -- Monta a URL da requisição com base no tipo de dado (ano padrão 2025), http-conduit fará a requisição para a API logo em seguida
+    let local = case localMaybe of Just l -> l; Nothing -> "todos"
+    let resultado = case resultadoMaybe of Just r -> r; Nothing -> "todos"    -- Monta a URL da requisição com base no tipo de dado (ano padrão 2025), http-conduit fará a requisição para a API logo em seguida
 
     let requestUrl = case dataType of
           "libertadores" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2152&season=2025"
@@ -171,13 +204,11 @@ main = scotty 3000 $ do
     response <- httpLBS requestAuth
     let body = getResponseBody response
 
-    -- Tratamento de erro na decodificação do JSON da resposta da API
-
     case (decode body :: Maybe Value) of
       Just val -> do
         -- Filtrar apenas se não for jogadores para usar os filtros na parte de jogos
         let dadosFiltrados = if dataType == "jogadores" 
                             then val 
-                            else aplicarFiltros filtro local val
+                            else aplicarFiltros filtro local resultado val
         json dadosFiltrados
       Nothing -> json $ object ["erro" .= ("não consegui ler os dados" :: String)]
