@@ -8,38 +8,98 @@
 </head>
 
 <body>
-  <div class="container">
+  <div class="header">
     <h1><img src="images/logo.png" width="292" height="78" alt="interScore Logo"></h1>
+  </div>
 
-    <div class="botoes">
-      <button id="brasileirao" data-campeonato="brasileirao">Brasileirão</button>
-      <button id="libertadores" data-campeonato="libertadores">Libertadores</button>
-      <button id="calendario" data-campeonato="calendario">Calendário</button>
-      <button id="jogadores" data-campeonato="jogadores">Jogadores</button>
+  <div class="container">
+    <div class="main-layout">
+      <div class="sidebar">
+        <h2>Seleção</h2>
+        <div class="botoes">
+          <button id="brasileirao" data-campeonato="brasileirao">Brasileirão</button>
+          <button id="libertadores" data-campeonato="libertadores">Libertadores</button>
+          <button id="calendario" data-campeonato="calendario">Calendário</button>
+          <button id="jogadores" data-campeonato="jogadores">Jogadores</button>
+        </div>
+
+        <div class="filtros" id="filtros" style="display: none;">
+          <h2>Filtros</h2>
+          <div class="filtro-item">
+            <label for="ano-select">Filtrar por ano:</label>
+            <select id="ano-select">
+              <option value="" disabled selected>Selecione uma opção</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+            </select>
+          </div>
+          
+          <div class="filtro-item">
+            <label for="resultado-select">Filtrar por resultado:</label>
+            <select id="resultado-select">
+              <option value="todos">Todos os jogos</option>
+              <option value="vitoria">Apenas vitórias</option>
+              <option value="empate">Apenas empates</option>
+              <option value="derrota">Apenas derrotas</option>
+            </select>
+          </div>
+          
+          <button id="aplicar-filtro">Buscar</button>
+        </div>
+
+        <div class="filtros-libertadores" id="filtros-libertadores" style="display: none;">
+          <h2>Filtros</h2>
+          <div class="filtro-item">
+            <label for="ano-libertadores-select">Selecione o ano:</label>
+            <select id="ano-libertadores-select">
+              <option value="" disabled selected>Selecione uma opção</option>
+              <option value="2025">2025</option>
+            </select>
+          </div>
+          
+          <div class="filtro-item">
+            <label for="resultado-libertadores-select">Filtrar por resultado:</label>
+            <select id="resultado-libertadores-select">
+              <option value="todos">Todos os jogos</option>
+              <option value="vitoria">Apenas vitórias</option>
+              <option value="empate">Apenas empates</option>
+              <option value="derrota">Apenas derrotas</option>
+            </select>
+          </div>
+          
+          <button id="aplicar-filtro-libertadores">Buscar</button>
+        </div>
+
+        <div class="filtros-calendario" id="filtros-calendario" style="display: none;">
+          <h2>Filtros</h2>
+          <div class="filtro-item">
+            <label for="local-select">Filtrar por:</label>
+            <select id="local-select">
+              <option value="todos">Todos os jogos</option>
+              <option value="casa">Apenas jogos em casa</option>
+              <option value="fora">Apenas jogos fora de casa</option>
+            </select>
+          </div>
+          
+          <button id="aplicar-filtro-calendario">Buscar</button>
+        </div>
+      </div>
+
+      <div class="results-area">
+        <div id="saida">
+          <div class="empty-state">
+            <img src="images/logo1.png" width="77" height="20" alt="interScore Logo">
+            <h3>Bem-vindo ao interScore!</h3>
+            <p>Selecione uma categoria no painel à esquerda para começar a explorar os dados do S.C.Internacional.</p>
+            <ul class="empty-state-steps">
+              <li>Escolha uma categoria (Brasileirão, Libertadores, etc.)</li>
+              <li>Configure os filtros conforme desejado</li>
+              <li>Clique em "Buscar" para ver os resultados</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="filtros" id="filtros" style="display: none;">
-      <label for="ano-select">Selecione o ano:</label>
-      <select id="ano-select">
-        <option value="" disabled selected>Selecione uma opção</option>
-        <option value="2024">2024</option>
-        <option value="2025">2025</option>
-      </select>
-      <button id="aplicar-filtro">Buscar</button>
-    </div>
-
-    <div class="filtros-calendario" id="filtros-calendario" style="display: none;">
-      <label for="local-select">Filtrar por:</label>
-      <select id="local-select">
-        <option value="" disabled selected>Selecione uma opção</option>
-        <option value="todos">Todos os jogos</option>
-        <option value="casa">Apenas jogos em casa</option>
-        <option value="fora">Apenas jogos fora de casa</option>
-      </select>
-      <button id="aplicar-filtro-calendario">Buscar</button>
-    </div>
-
-    <div id="saida"></div>
   </div>
 
   <script>
@@ -93,7 +153,7 @@
       if (dados.Jogos && dados.Jogos.length > 0) {
         dados.Jogos.forEach(jogo => {
           texto += `<div class="card">`;
-          texto += `${jogo.Competicao}`;
+          texto += `${jogo.Competicao}<br>`;
           texto += `${jogo.Data}<br><br>`;
           texto += `<img src="${jogo.EmblemaCasa}" width="20" height="20"> ${jogo.Casa} <br>`;
           texto += `<img src="${jogo.EmblemaVisitante}" width="20" height="20"> ${jogo.Visitante} <br>`;
@@ -136,16 +196,18 @@
             })) || [],
         };
 
-        document.getElementById("saida").innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
+        const saidaElement = document.getElementById("saida");
+        saidaElement.innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
+        saidaElement.classList.add('has-content');
       } catch (error) {
         document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
       }
     }
 
-    async function buscarDadosComAno(campeonato, ano) {
+    async function buscarDadosComAno(campeonato, ano, resultado = "todos") {
       try {
         const time = "internacional";
-        const resp = await fetch(`/api/team/${time}/${campeonato}/${ano}?filtro=finalizados`);
+        const resp = await fetch(`/api/team/${time}/${campeonato}/${ano}?filtro=finalizados&resultado=${resultado}`);
         const data = await resp.json();
 
         console.log("Dados recebidos:", data);
@@ -175,9 +237,13 @@
             })) || [],
         };
 
-        document.getElementById("saida").innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
+        const saidaElement = document.getElementById("saida");
+        saidaElement.innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
+        saidaElement.classList.add('has-content');
       } catch (error) {
-        document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
+        const saidaElement = document.getElementById("saida");
+        saidaElement.innerHTML = `Erro: ${error.message}`;
+        saidaElement.classList.add('has-content');
       }
     }
 
@@ -206,7 +272,6 @@
                 }),
                 Casa: jogo.homeTeam.shortName,
                 Visitante: jogo.awayTeam.shortName,
-                Placar: "A definir",
                 Competicao: jogo.competition.name,
                 EmblemaCasa: jogo.homeTeam.crest || "N/A",
                 EmblemaVisitante: jogo.awayTeam.crest || "N/A",
@@ -214,36 +279,78 @@
             })
         };
 
-        document.getElementById("saida").innerHTML = formatarPartidasCalendario(dadosRelevantes);
+        const saidaElement = document.getElementById("saida");
+        saidaElement.innerHTML = formatarPartidasCalendario(dadosRelevantes);
+        saidaElement.classList.add('has-content');
       } catch (error) {
-        document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
+        const saidaElement = document.getElementById("saida");
+        saidaElement.innerHTML = `Erro: ${error.message}`;
+        saidaElement.classList.add('has-content');
       }
     }
 
     let competicaoAtual = null;
 
 
+    function showEmptyState() {
+      const saidaElement = document.getElementById("saida");
+      saidaElement.classList.remove('has-content');
+      saidaElement.innerHTML = `
+        <div class="empty-state">
+          <img src="images/logo1.png" width="77" height="20" alt="interScore Logo">
+          <h3>Configure os filtros</h3>
+          <p>Selecione as opções de filtro e clique em "Buscar" para ver os resultados.</p>
+          <ul class="empty-state-steps">
+            <li>Escolha o ano desejado</li>
+            <li>Selecione o tipo de resultado</li>
+            <li>Clique em "Buscar" para visualizar</li>
+          </ul>
+        </div>
+      `;
+    }
+
     document.getElementById("brasileirao").addEventListener("click", () => {
       document.getElementById("filtros").style.display = "block";
+      document.getElementById("filtros-libertadores").style.display = "none";
       document.getElementById("filtros-calendario").style.display = "none";
-      document.getElementById("saida").innerHTML = "";
+      showEmptyState();
     });
-
 
     document.getElementById("libertadores").addEventListener("click", () => {
       document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-libertadores").style.display = "block";
       document.getElementById("filtros-calendario").style.display = "none";
-      buscarDados("libertadores");
+      showEmptyState();
     });
 
     document.getElementById("aplicar-filtro").addEventListener("click", () => {
       const anoSelecionado = document.getElementById("ano-select").value;
-      buscarDadosComAno("brasileirao", anoSelecionado);
+      const resultadoSelecionado = document.getElementById("resultado-select").value;
+      buscarDadosComAno("brasileirao", anoSelecionado, resultadoSelecionado);
+    });
+
+    document.getElementById("aplicar-filtro-libertadores").addEventListener("click", () => {
+      const anoSelecionado = document.getElementById("ano-libertadores-select").value;
+      const resultadoSelecionado = document.getElementById("resultado-libertadores-select").value;
+      buscarDadosComAno("libertadores", anoSelecionado, resultadoSelecionado);
     });
 
     document.getElementById("jogadores").addEventListener("click", async () => {
       document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-libertadores").style.display = "none";
       document.getElementById("filtros-calendario").style.display = "none";
+      
+      // Mostrar loading state
+      const saidaElement = document.getElementById("saida");
+      saidaElement.classList.remove('has-content');
+      saidaElement.innerHTML = `
+        <div class="empty-state">
+          <img src="images/logo1.png" width="77" height="20" alt="interScore Logo">
+          <h3>Carregando elenco...</h3>
+          <p>Buscando informações dos jogadores do Internacional.</p>
+        </div>
+      `;
+      
       try {
         const time = "internacional";
         const resp = await fetch(`/api/team/${time}/jogadores`);
@@ -254,20 +361,42 @@
             Nome: jogador.name,
             Posicao: jogador.position,
             Nacionalidade: jogador.nationality,
-            Nascimento: jogador.dateOfBirth,
+            Nascimento: new Date(jogador.dateOfBirth).toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            }),
           })) || [],
         };
 
-        document.getElementById("saida").innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
+        const saidaElement = document.getElementById("saida");
+        saidaElement.innerHTML = formatarParaTexto(dadosRelevantes, null, 2);
+        saidaElement.classList.add('has-content');
       } catch (error) {
-        document.getElementById("saida").innerHTML = `Erro: ${error.message}`;
+        const saidaElement = document.getElementById("saida");
+        saidaElement.innerHTML = `Erro: ${error.message}`;
+        saidaElement.classList.add('has-content');
       }
     });
 
     document.getElementById("calendario").addEventListener("click", () => {
       document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-libertadores").style.display = "none";
       document.getElementById("filtros-calendario").style.display = "block";
-      document.getElementById("saida").innerHTML = "";
+      
+      const saidaElement = document.getElementById("saida");
+      saidaElement.classList.remove('has-content');
+      saidaElement.innerHTML = `
+        <div class="empty-state">
+          <img src="images/logo1.png" width="77" height="20" alt="interScore Logo">
+          <h3>Próximas Partidas</h3>
+          <p>Configure o filtro e clique em "Buscar" para ver o calendário de jogos futuros.</p>
+          <ul class="empty-state-steps">
+            <li>Escolha se quer ver todos os jogos ou filtrar por local</li>
+            <li>Clique em "Buscar" para visualizar</li>
+          </ul>
+        </div>
+      `;
     });
 
     document.getElementById("aplicar-filtro-calendario").addEventListener("click", () => {
@@ -277,6 +406,7 @@
 
     function esconderFiltros() {
       document.getElementById("filtros").style.display = "none";
+      document.getElementById("filtros-libertadores").style.display = "none";
       document.getElementById("filtros-calendario").style.display = "none";
     }
   </script>
