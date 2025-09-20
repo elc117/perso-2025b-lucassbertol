@@ -196,7 +196,7 @@ jogoCasa jogo =
 
 ```bash
 # Instalar dependências Haskell
-cabal install aeson bytestring text http-conduit wai-extra scotty vector
+cabal install --lib scotty HTTP-Simple http-conduit aeson wai-middleware-static vector text bytestring
 
 
 # Executar o servidor
