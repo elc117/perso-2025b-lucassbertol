@@ -1,19 +1,148 @@
+:root {
+  --bg: #ff7878;               /* page background */
+  --surface: #ffffff;           /* cards / containers */
+  --surface-alt: #ffc3c3;       /* filter panels */
+  --text: #181818;              /* primary text */
+  --muted: #333333;             /* secondary text */
+  --primary: #ab0000;           /* main action */
+  --primary-dark: #7d0000;      /* pressed/alt */
+  --primary-light: #ff7a7a;     /* hover */
+  --border: rgba(0, 0, 0, 0.08);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.10);
+  --shadow-md: 0 4px 12px rgba(255, 54, 54, 0.20);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
-  font-family: Arial, sans-serif;
-  background: #ff7878;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   margin: 0;
   padding: 0;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img { max-width: 100%; height: auto; }
+
+.header {
+  text-align: center;
+  padding: 20px;
+  background: var(--surface);
+  margin-bottom: 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 20px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 24px;
+  min-height: 70vh;
+}
+
+.sidebar {
+  background: var(--surface);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.results-area {
+  background: var(--surface);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  min-height: 500px;
+  overflow-y: auto;
+  max-height: 80vh;
+  position: relative;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  color: var(--muted);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffc3c3 100%);
+  border-radius: var(--radius);
+  border: 2px dashed var(--border);
+  margin: 20px 0;
+}
+
+.empty-state-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.empty-state h3 {
+  color: var(--primary);
+  margin: 0 0 12px 0;
+  font-size: 24px;
+}
+
+.empty-state p {
+  color: var(--muted);
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.empty-state-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.empty-state-steps li {
+  margin-bottom: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--primary);
+}
+
+.empty-state-steps li::before {
+  content: "✓ ";
+  color: var(--primary);
+  font-weight: bold;
+  margin-right: 8px;
 }
 
 
-.container {
-  max-width: 600px;
-  margin: 50px auto;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.5s ease-in-out;
+#saida.has-content .empty-state {
+  display: none;
+}
+
+.results-header {
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.results-header h2 {
+  color: var(--primary);
+  margin: 0;
+  font-size: 22px;
 }
 
 @keyframes fadeIn {
@@ -28,126 +157,139 @@ body {
 
 h1 {
   text-align: center;
-  color: #181818;
+  color: var(--text);
+  margin: 0 0 8px;
 }
 
+.sidebar h2 {
+  color: var(--primary);
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 8px;
+}
+
+.sidebar h2:not(:first-child) {
+  margin-top: 24px;
+}
 
 input {
   width: 70%;
   padding: 10px;
   margin-right: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .botoes {
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
-  position: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 0 24px 0;
 }
 
 .botoes button {
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: 12px 16px;
+  font-size: 14px;
   border: none;
-  border-radius: 5px;
-  background-color: #ab0000;
-  color: white;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary);
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-weight: bold;
+  font-weight: 700;
+  text-align: center;
 }
 
 .botoes button:hover {
-  background-color: #ff7a7a;
-  transition: background-color 0.3s;
+  background-color: var(--primary-light);
 }
 
 .botoes button:active {
   transform: scale(0.98);
-  transition: transform 0.1s;
+}
+
+.botoes button:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
 }
 
 .filtros,
+.filtros-libertadores,
 .filtros-calendario {
-  text-align: center;
-  margin: 20px 0;
-  padding: 15px;
-  background-color: #ffc3c3;
-  border-radius: 8px;
-
+  margin: 0;
+  padding: 20px 0 0 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border-top: 1px solid var(--border);
 }
 
 .filtros select,
 .filtros button,
+.filtros-libertadores select,
+.filtros-libertadores button,
 .filtros-calendario select,
 .filtros-calendario button {
-  margin: 0 10px;
-  padding: 8px 15px;
+  margin: 8px 0;
+  padding: 10px 14px;
+  width: 100%;
+  display: block;
 }
 
 .filtros-calendario select {
-  background-color: white;
+  background-color: #fff;
   border: 1px solid #980000;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
 }
 
 .filtros-calendario button {
-  background-color: #7d0000;
-  color: white;
+  background-color: var(--primary-dark);
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .filtros-calendario button:hover {
-  background-color: #ff7a7a;
+  background-color: var(--primary-light);
 }
 
-.filtros button {
-  background-color: #7d0000;
-  color: white;
+.filtros button,
+.filtros-libertadores button {
+  background-color: var(--primary-dark);
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.filtros select {
-  background-color: white;
+.filtros select,
+.filtros-libertadores select {
+  background-color: #fff;
   border: 1px solid #980000;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
-}
-
-div {
-  background: white;
-  color: #000000;
-  font-size: 17px;
-  font-family: Arial, Helvetica, sans-serif;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  max-width: 900px;
-  margin: 30px auto;
-  text-align: justify;
 }
 
 .card {
   border: 1px solid #aeadad;
-  border-radius: 8px;
+  border-radius: var(--radius);
   box-shadow: 0 2px 8px rgba(255, 54, 54, 0.129);
   padding: 16px;
   margin-bottom: 16px;
-  background: #fff;
+  background: var(--surface);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .cardTitle {
@@ -155,9 +297,85 @@ div {
   font-size: 19px;
   font-weight: bold;
   margin-bottom: 8px;
-  color: #000000;
+  color: var(--text);
   border: 2px solid #c30000;
-  border-radius: 8px;
+  border-radius: var(--radius);
   box-shadow: 0 2px 8px rgba(255, 9, 9, 0.129);
+  background: var(--surface);
+  padding: 10px 12px;
 
+}
+
+.filtro-item {
+  display: block;
+  margin-bottom: 16px;
+}
+.filtros label,
+.filtros-libertadores label,
+.filtros-calendario label {
+  font-weight: 600;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+select:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1200px) {
+  .main-layout {
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+  }
+  .sidebar {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .container { 
+    margin: 20px 12px; 
+    padding: 12px; 
+  }
+  .main-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .sidebar {
+    position: static;
+    margin-bottom: 20px;
+  }
+  .botoes { 
+    grid-template-columns: 1fr 1fr;
+    gap: 10px; 
+  }
+  .botoes button { 
+    font-size: 12px;
+    padding: 10px 8px;
+  }
+  
+  .empty-state {
+    min-height: 300px;
+    padding: 20px;
+  }
+  .empty-state-icon {
+    font-size: 48px;
+  }
+  .empty-state h3 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .botoes { 
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }
