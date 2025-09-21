@@ -37,7 +37,7 @@ apiKey = "a8b13670a43b43079197e65af09c6065"
 request <- parseRequest requestUrl
 let requestAuth = setRequestHeader "X-Auth-Token" [BS.pack apiKey] request
 ```
-
+<br><br>
 ### 2. Roteamento Dinâmico
 
 **2.1** Criar rotas dinâmicas para diferentes competições e anos
@@ -65,8 +65,7 @@ get "/api/team/:name/:dataType/:year" $ do
         "brasileirao" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2013&season=" ++ T.unpack year
         "libertadores" -> "http://api.football-data.org/v4/teams/6684/matches?competitions=2152&season=" ++ T.unpack year
 ```
-
-
+<br><br>
 ### 3. Manipulação de JSON e parsing
 
 **3.1** Extrair dados específicos do JSON cru da API
@@ -100,7 +99,8 @@ parseAwayTeam :: Value -> Parser String
 parseMatchday :: Value -> Parser Int
 ```
 
-- Tabém aderi ao uso de `parseMaybe` em algumas ocasiões, para que falhas na extração de dados não acabem quebrando o sistema inteiro
+- Tabém aderi ao uso de `parseMaybe` em algumas ocasiões
+- `Maybe` funciona em Haskell para lidar com dados que "podem não esxistir", é ótimo para não quebrar o código
 
 ```haskell
 jogoFinalizado :: Value -> Bool
@@ -127,7 +127,7 @@ parseScore = withObject "match" $ \o -> do
         _ -> return (Nothing, Nothing)
     _ -> return (Nothing, Nothing)
 ```
-
+<br><br>
 ### 4. Sistema de Filtros
 
 - Na `main.hs`, a filtragem ocorre antes de os dados serem enviados para o frontend
@@ -143,7 +143,7 @@ aplicarFiltros filtro local dadosOriginais =
     _ -> dadosOriginais
 ```
 
-- Outros filtros desenvolvidos:
+- Alguns dos outros filtros desenvolvidos:
 ```haskell
 filtrarPorStatus :: Text -> [Value] -> [Value]
 jogoFinalizado :: Value -> Bool
@@ -163,7 +163,8 @@ extrairRodada :: Value -> Int
     {"matchday": 15, "homeTeam": "Internacional", "status": "FINISHED"}
   ]
 }
-``` 
+```
+<br><br>
 
 ### 5. Filtros por Local (Casa/Fora)
 
@@ -179,7 +180,7 @@ jogoCasa jogo =
 ```
 
 - Descobri que por algum motivo as vezes a API retornava "Internacional" e outras vezes "Sport Club Inernacional" causando erro no teste acima
-- A solução foi implementar `T.isInfixOf`, que "detecta se tem uma palavra dentro da palavra escolhida", no meu caso, verifica se tem Internacional dentro do escolhido
+- A solução foi implementar `T.isInfixOf`, que "detecta se tem uma palavra dentro da palavra escolhida", no meu caso, verifica se tem Internacional dentro da selecionada
 
 ```haskell
 -- final - busca por substring
@@ -189,6 +190,52 @@ jogoCasa jogo =
     Just nome -> "Internacional" `T.isInfixOf` T.pack nome || "Internacional" == T.pack nome
     _ -> False
 ```
+<br><br>
+
+### 6. "Conexão" Backend` --> Frontend (Haskell --> JavaScript)
+
+- Haskell cria um servidor web na porta 3000 e servir os arquivos estáticos (HTML, CSS, JS) da pasta `static`. Quando o usuário acessa localhost:3000, o Haskell vai entregar o arquivo `index.html` que contém o JavaScript.
+
+```haskell
+main = scotty 3000 $ do
+  middleware $ staticPolicy (addBase "static")
+  get "/" $ file "static/index.html"
+```
+
+**6.1** Javascript fazendo requisições para o Haskell
+
+- O Javascript vai fazer uma requisição HTTP para `/api/team/internacional/brasileirao/2024?filtro=finalizados&resultado=vitoria`, o Haskell vai processar os parâmetros, buscar os dados e retornar o JSON ja passado pelas funções de filtro.
+- O exemplo abaixo é de como foi feito a parte de buscar as partidas do brasileirão
+
+- No `index.html`:
+```javascript
+async function buscarDadosComAno(campeonato, ano, resultado = "todos") {
+  const time = "internacional";
+  const resp = await fetch(`/api/team/${time}/${campeonato}/${ano}?filtro=finalizados&resultado=${resultado}`);
+  const data = await resp.json();
+  // processa e exibe os dados...
+}
+```
+
+- No `main.hs`:
+```haskell
+get "/api/team/:name/:dataType/:year" $ do
+  dataType <- pathParam "dataType" :: ActionM Text
+  year <- pathParam "year" :: ActionM Text
+  
+  -- parâmetros de filtro
+  filtroMaybe <- queryParamMaybe "filtro"
+  resultadoMaybe <- queryParamMaybe "resultado"
+  let filtro = case filtroMaybe of Just f -> f; Nothing -> "todos"
+  let resultado = case resultadoMaybe of Just r -> r; Nothing -> "todos"
+  
+  -- busca dados na API externa e aplica filtros
+  let dadosFiltrados = aplicarFiltros filtro local resultado val
+  json dadosFiltrados
+```
+
+- Um **"resumo"** de tudo:
+  - API Externa (JSON bruto) --> Parser --> Lista de Values --> Filtros --> JSON filtrado --> Frontend
 
 ---
 
