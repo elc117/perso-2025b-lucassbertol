@@ -1,12 +1,12 @@
 :root {
-  --bg: #ff7878;               /* page background */
-  --surface: #ffffff;           /* cards / containers */
-  --surface-alt: #ffc3c3;       /* filter panels */
-  --text: #181818;              /* primary text */
-  --muted: #333333;             /* secondary text */
-  --primary: #ab0000;           /* main action */
-  --primary-dark: #7d0000;      /* pressed/alt */
-  --primary-light: #ff7a7a;     /* hover */
+  --bg: #ff7878;             
+  --surface: #ffffff;           
+  --surface-alt: #ffc3c3;       
+  --text: #181818;              
+  --muted: #333333;            
+  --primary: #ab0000;          
+  --primary-dark: #7d0000;      
+  --primary-light: #ff7a7a;    
   --border: rgba(0, 0, 0, 0.08);
   --radius: 10px;
   --radius-sm: 6px;
