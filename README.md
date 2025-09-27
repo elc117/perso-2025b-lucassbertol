@@ -449,20 +449,31 @@ runhaskell spec.hs
 # IA / Prompts
 
 - **Scotty**
-  - Como fazer rotas com vários parâmetros com scotty
+  - Como fazer rotas com mais de um parâmetro com scotty
   - Como funciona query parameters em scotty
   - Como utilizar arquivos estáticos html css com scotty
+ 
+- **API**
+  - Como colocar autenticação na API em haskell para não dar erro 403 forbidden
 
 - **Manipulação de JSON**
   - Quais bibliotecas em haskell e o que pode me ajudar com manipulação de dados em JSON
   - Parsing em haskell
-  - Como lidar com campos opcionais em JSON 
-  - Como funciona o maybe em haskell
+  - Como lidar com campos opcionais em JSON
+  - Informações úteis sobre a bilbioteca AESON
+  - Diferença entre .: e .:? no Aeson e quando usar cada um
+  - Error: couldn't parse JSON field 'score'
+  - Como fazer logging para saber o que está dando erro no retorno do JSON
 
 - **Filtragem**
+  - Como ver se uma substring está em uma string em haskell
+  - Como fazer um filtro que funciona para tudo e também para critérios específicos
+  - Como verificar se um jogo está finalizado quando placar pode ser null
+  - Como funciona o maybe em haskell
+  - Como ordenar dados por data
 
 - **Função de testes:**
-  - Foi perguntado como fazer uma função de testes simples em Haskell e quais bibliotecas poderiam me ajudar, para eu ter um ponto de partida, pois não achei tutoriais que me agradassem na internet
+  - Foi perguntado como fazer uma função de testes simples em haskell e quais bibliotecas poderiam me ajudar, para eu ter um ponto de partida, pois não achei tutoriais que me agradassem na internet
  
 - **CSS/JS**
   - Melhorias do CSS da webpage e algumas partes do JS (Como a formatação dos dados) aperfeiçoadas por ia e refinadas após, por mim, para deixar como eu queria
