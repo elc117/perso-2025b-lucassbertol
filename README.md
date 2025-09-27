@@ -426,6 +426,7 @@ runhaskell spec.hs
 
 # Resultado final
 
+https://github.com/user-attachments/assets/1cfb5840-74e7-40b7-a5f6-b911a12b0855
 
 ---
 
