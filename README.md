@@ -243,7 +243,7 @@ get "/api/team/:name/:dataType/:year" $ do
 
 ```bash
 # Instalar dependências Haskell
-cabal install --lib scotty HTTP-Simple http-conduit aeson wai-middleware-static vector text bytestring
+cabal install --lib scotty HTTP-Simple http-conduit aeson wai-middleware-static vector text bytestring hspec QuickCheck
 
 
 # Executar o servidor
