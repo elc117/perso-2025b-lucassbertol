@@ -91,7 +91,7 @@ get "/api/team/:name/:dataType/:year" $ do
       "homeTeam": {"shortName": "Internacional", "crest": "url"},
       "awayTeam": {"shortName": "Grêmio", "crest": "url"},
       "score": {
-        "fullTime": {"home": 2, "away": 1}  // só existe em jogos finalizados
+        "fullTime": {"home": 2, "away": 1}  
       },
       "matchday": 15
     }
@@ -202,11 +202,12 @@ ordenarPorRodada = sortBy (comparing extrairRodada)
 ```
 
 **Exemplo de transformação de dados:**
+
+Entrada e saída respectivamente: 
+
 ```json
-// Entrada (dados brutos da API)
 {"matches": [{"matchday": 15, "status": "FINISHED"}, {"matchday": 5, "status": "SCHEDULED"}]}
 
-// Saída (após filtro "finalizados")
 {"matches": [{"matchday": 5, "status": "FINISHED"}, {"matchday": 15, "status": "FINISHED"}]}
 ```
 
@@ -464,6 +465,7 @@ runhaskell spec.hs
   - Diferença entre .: e .:? no Aeson e quando usar cada um
   - Error: couldn't parse JSON field 'score'
   - Como fazer logging para saber o que está dando erro no retorno do JSON
+  - Por que preciso usar T.pack e T.unpack 
 
 - **Filtragem**
   - Como ver se uma substring está em uma string em haskell
@@ -473,7 +475,7 @@ runhaskell spec.hs
   - Como ordenar dados por data
 
 - **Função de testes:**
-  - Foi perguntado como fazer uma função de testes simples em haskell e quais bibliotecas poderiam me ajudar, para eu ter um ponto de partida, pois não achei tutoriais que me agradassem na internet
+  - Como fazer uma função de testes simples em haskell e quais bibliotecas usar
  
 - **CSS/JS**
   - Melhorias do CSS da webpage e algumas partes do JS (Como a formatação dos dados) aperfeiçoadas por ia e refinadas após, por mim, para deixar como eu queria
